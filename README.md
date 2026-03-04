@@ -18,4 +18,4 @@ Special credit goes to:
 - [Mekanism](https://github.com/mekanism) for their awesome repository & textures 
 
 ---
-[![brainmade-white-logo](brainmade-white-logo-500-156.png)](https://brainmade.org)
+[![brainmade-white-logo](./brainmade-white-logo-500-156.png)](https://brainmade.org)
