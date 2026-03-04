@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "logstrippermod:block/machine_log_stripper_block_north"
+    },
+    "facing=east": {
+      "model": "logstrippermod:block/machine_log_stripper_block_east"
+    },
+    "facing=south": {
+      "model": "logstrippermod:block/machine_log_stripper_block_south"
+    },
+    "facing=west": {
+      "model": "logstrippermod:block/machine_log_stripper_block_west"
+    }
+  }
+}

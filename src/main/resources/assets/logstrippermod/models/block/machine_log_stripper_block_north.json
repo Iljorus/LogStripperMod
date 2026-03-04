@@ -1,0 +1,12 @@
+{
+  "parent": "logstrippermod:block/machine_generic",
+  "textures": {
+    "sides": "logstrippermod:block/machine_log_stripper_block/right",
+    "north": "logstrippermod:block/machine_log_stripper_block/front",
+    "west": "logstrippermod:block/machine_log_stripper_block/right",
+    "east": "logstrippermod:block/machine_log_stripper_block/left",
+    "south": "logstrippermod:block/machine_log_stripper_block/back",
+    "up": "logstrippermod:block/machine_log_stripper_block/top",
+    "down": "logstrippermod:block/machine_log_stripper_block/bottom"
+  }
+}

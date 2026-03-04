@@ -1,0 +1,12 @@
+{
+  "type": "logstrippermod:log_stripping",
+  "ingredients": [
+    {
+      "item": "minecraft:oak_log"
+    }
+  ],
+  "result": {
+    "item": "minecraft:stripped_oak_log",
+    "count": 1
+  }
+}

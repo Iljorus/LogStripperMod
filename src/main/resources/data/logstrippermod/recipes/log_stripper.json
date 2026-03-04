@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " A ",
+    "ASA",
+    "   "
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stonecutter"
+    },
+    "A": {
+      "item": "minecraft:diamond_axe"
+    }
+  },
+  "result": {
+    "item": "logstrippermod:machine_log_stripper_block",
+    "count": 1
+  }
+}

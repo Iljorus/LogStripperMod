@@ -1,0 +1,315 @@
+package net.iljorus.logstrippermod.block.entity;
+
+import net.iljorus.logstrippermod.config.BaseConfig;
+import net.iljorus.logstrippermod.inventory.InputItemStackWrapper;
+import net.iljorus.logstrippermod.inventory.OutputItemStackWrapper;
+import net.iljorus.logstrippermod.inventory.SpecialItemHandler;
+import net.iljorus.logstrippermod.recipe.LogStrippingRecipe;
+import net.iljorus.logstrippermod.screen.LogStripperMenu;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Containers;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+
+/*
+ * This class handles the functionality of the Log Stripper
+ * */
+public class LogStripperBlockEntity extends BlockEntity implements MenuProvider {
+    protected ItemStackHandler inputSlot = new ItemStackHandler();
+    protected ItemStackHandler outputSlot = new ItemStackHandler();
+    protected SpecialItemHandler axeSlot = new SpecialItemHandler();
+    private InputItemStackWrapper inputSlotWrapper = new InputItemStackWrapper(inputSlot);
+    private OutputItemStackWrapper outputSlotWrapper = new OutputItemStackWrapper(outputSlot);
+    //protected SpecialItemStackWrapper axeSlotWrapper = new SpecialItemStackWrapper(axeSlot);
+    public static final int INPUT_SLOT = 0;
+    public static final int OUTPUT_SLOT = 1;
+    public static final int AXE_SLOT = 2;
+    private LazyOptional<IItemHandler> inputSlotHandlerLazyOptional = LazyOptional.empty();
+    private LazyOptional<IItemHandler> outputSlotHandlerLazyOptional = LazyOptional.empty();
+    public LazyOptional<IItemHandler> axeSlotHandlerLazyOptional = LazyOptional.empty();
+    protected final ContainerData data;
+    private int progress = 0;
+    private int maxProgress = BaseConfig.COMMON.DURATION.get();
+
+    public LogStripperBlockEntity(BlockPos pPos, BlockState pBlockState) {
+        super(ModBlockEntity.MACHINE_LOG_STRIPPER_BLOCK_ENTITY.get(), pPos, pBlockState);
+        this.data = new ContainerData() {
+            @Override
+            public int get(int pIndex) {
+                return switch (pIndex) {
+                    case 0 -> LogStripperBlockEntity.this.progress;
+                    case 1 -> LogStripperBlockEntity.this.maxProgress;
+                    default -> 0;
+                };
+            }
+
+            @Override
+            public void set(int pIndex, int pValue) {
+                switch (pIndex) {
+                    case 0 -> LogStripperBlockEntity.this.progress = pValue;
+                    case 1 -> LogStripperBlockEntity.this.maxProgress = pValue;
+                }
+            }
+
+            @Override
+            public int getCount() {
+                return 2;
+            }
+        };
+    }
+
+    @Override
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if (cap == ForgeCapabilities.ITEM_HANDLER) {
+            if (side == null) {
+                if (BaseConfig.COMMON.AXE_SLOT.get()) {
+                    return LazyOptional.of(() -> new CombinedInvWrapper(inputSlotWrapper, outputSlotWrapper, axeSlot)).cast();
+                    //IDEALLY
+                    //return LazyOptional.of(()-> new CombinedInvWrapper(inputSlot, outputSlot, axeSlot).cast();
+                } else {
+                    return LazyOptional.of(() -> new CombinedInvWrapper(inputSlotWrapper, outputSlotWrapper)).cast();
+                }
+            }
+            if (side == Direction.UP ||
+                    side == Direction.NORTH ||
+                    side == Direction.EAST ||
+                    side == Direction.SOUTH ||
+                    side == Direction.WEST) {
+                return LazyOptional.of(() -> new CombinedInvWrapper(inputSlotWrapper, axeSlot)).cast();
+            }
+            if (side == Direction.DOWN) {
+                return LazyOptional.of(() -> outputSlotWrapper).cast();
+            }
+        }
+        return super.getCapability(cap, side);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        inputSlotHandlerLazyOptional = LazyOptional.of(() -> inputSlot);
+        outputSlotHandlerLazyOptional = LazyOptional.of(() -> outputSlot);
+        axeSlotHandlerLazyOptional = LazyOptional.of(() -> axeSlot);
+    }
+
+    @Override
+    public void invalidateCaps() {
+        super.invalidateCaps();
+        inputSlotHandlerLazyOptional.invalidate();
+        outputSlotHandlerLazyOptional.invalidate();
+        axeSlotHandlerLazyOptional.invalidate();
+    }
+
+    public void drops() {
+        SimpleContainer inventory = new SimpleContainer(3);
+        inventory.setItem(INPUT_SLOT, inputSlot.getStackInSlot(0));
+        inventory.setItem(OUTPUT_SLOT, outputSlot.getStackInSlot(0));
+        inventory.setItem(AXE_SLOT, axeSlot.getStackInSlot(0));
+
+        Containers.dropContents(this.level, this.worldPosition, inventory);
+    }
+
+    @Override
+    public @NotNull Component getDisplayName() {
+        return Component.translatable("block.logstrippermod.machine_log_stripper_block");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
+        return new LogStripperMenu(pContainerId, pPlayerInventory, this, this.data);
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag pTag) {
+        ListTag nbtTagList = new ListTag();
+        CompoundTag inputTag = new CompoundTag();
+        CompoundTag outputTag = new CompoundTag();
+        inputTag.putInt("Slot", INPUT_SLOT);
+        outputTag.putInt("Slot", OUTPUT_SLOT);
+        this.inputSlot.getStackInSlot(0).save(inputTag);
+        this.outputSlot.getStackInSlot(0).save(outputTag);
+        nbtTagList.add(inputTag);
+        nbtTagList.add(outputTag);
+        nbtTagList.add(axeSlot.serializeNBT());
+
+        CompoundTag nbt = new CompoundTag();
+        nbt.put("Items", nbtTagList);
+        nbt.putInt("Size", 3);
+
+        pTag.put("inventory", nbt);
+        pTag.putInt("machine_log_stripper_block.progress", progress);
+        super.saveAdditional(pTag);
+    }
+
+    @Override
+    public void load(@NotNull CompoundTag pTag) {
+        super.load(pTag);
+        ListTag tagList = pTag.getCompound("inventory").getList("Items", Tag.TAG_COMPOUND);
+        for (int i = 0; i < tagList.size(); i++) {
+            CompoundTag itemTags = tagList.getCompound(i);
+            int slot = itemTags.getInt("Slot");
+
+            if (slot == INPUT_SLOT) {
+                this.inputSlot.setStackInSlot(0, ItemStack.of(itemTags));
+            }
+            if (slot == OUTPUT_SLOT) {
+                this.outputSlot.setStackInSlot(0, ItemStack.of(itemTags));
+            }
+            if (slot == AXE_SLOT) {
+                this.axeSlot.deserializeNBT(itemTags);
+            }
+        }
+        progress = pTag.getInt("machine_log_stripper_block.progress");
+    }
+
+    public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
+        if (shouldPreserveAxe()) {
+            //TODO
+        }
+
+
+        if (hasRecipe()) {
+            increaseProgress();
+            setChanged(pLevel, pPos, pState);
+            if (progressFinished()) {
+                craftItem();
+                resetProgress();
+                pushIntoAdjacent(Direction.UP);
+            }
+        } else {
+            resetProgress();
+        }
+    }
+
+    private void resetProgress() {
+        progress = 0;
+    }
+
+    private void craftItem() {
+        Optional<LogStrippingRecipe> recipe = fetchRecipe();
+        ItemStack result = recipe.get().getResultItem(getLevel().registryAccess());
+        int batch_size = recipe.get().getIngredients().get(0).getItems()[0].getCount();
+
+        //If axe slot is enabled damage axe and increase output
+        if (BaseConfig.COMMON.AXE_SLOT.get()) {
+            ItemStack axeCopy = getAxe().copy();
+            int destroySpeed = (int) axeCopy.getDestroySpeed(Blocks.OAK_LOG.defaultBlockState());
+            int efficiencyLevel = axeCopy.getEnchantmentLevel(Enchantments.BLOCK_EFFICIENCY);
+            int finalDestroySpeed = efficiencyLevel > 0 ? (destroySpeed + ((int) Math.pow(efficiencyLevel, 2)) + 1) : destroySpeed;
+            if (finalDestroySpeed > 64) {
+                finalDestroySpeed = 64;
+            }
+
+            axeCopy.setDamageValue(axeCopy.getDamageValue() + BaseConfig.COMMON.DURABILITY_DEDUCTION.get());
+            axeSlot.setStackInSlot(0, axeCopy);
+            axeSlot.setStackInSlot(0, axeCopy);
+        }
+
+        this.inputSlot.extractItem(0, batch_size, false);
+        this.outputSlot.setStackInSlot(0, new ItemStack(result.getItem(),
+                this.outputSlot.getStackInSlot(0).getCount() + result.getCount()));
+    }
+
+    private boolean progressFinished() {
+        return progress >= maxProgress;
+    }
+
+    private void increaseProgress() {
+        progress++;
+    }
+
+    private boolean hasRecipe() {
+        Optional<LogStrippingRecipe> recipe = fetchRecipe();
+        if (recipe.isEmpty()) {
+            return false;
+        }
+
+        ItemStack result = recipe.get().getResultItem(getLevel().registryAccess());
+        return canOutputAmount(result.getCount()) && canOutputItem(result.getItem());
+    }
+
+    private boolean shouldPreserveAxe() {
+        return BaseConfig.COMMON.AXE_SLOT.get() &&
+                BaseConfig.COMMON.PRESERVE_AXE.get() &&
+                getAxe().getDamageValue() + BaseConfig.COMMON.DURABILITY_DEDUCTION.get() >= getAxe().getMaxDamage();
+    }
+
+    private Optional<LogStrippingRecipe> fetchRecipe() {
+        SimpleContainer inventory = new SimpleContainer(2);
+        inventory.setItem(INPUT_SLOT, inputSlot.getStackInSlot(0));
+        return this.level.getRecipeManager().getRecipeFor(LogStrippingRecipe.Type.INSTANCE, inventory, level);
+    }
+
+    private boolean canOutputItem(Item item) {
+        return this.outputSlot.getStackInSlot(0).isEmpty() || this.outputSlot.getStackInSlot(0).is(item);
+    }
+
+    private boolean canOutputAmount(int count) {
+        return this.outputSlot.getStackInSlot(0).getCount() + count <= this.outputSlot.getStackInSlot(0).getMaxStackSize();
+    }
+
+    public ItemStack getAxe() {
+        return this.axeSlot.getStackInSlot(0);
+    }
+
+    private void pushIntoAdjacent(Direction side){  //TODO if receive "neighborUpdate" push entire output slot to container
+        Level level = this.getLevel();
+        BlockPos pos = this.getBlockPos();
+        Direction faceOpposite = side.getOpposite();
+
+        pos = pos.relative(side);
+        BlockEntity adjacent = level.getBlockEntity(pos);
+        ItemStack out = new ItemStack(this.outputSlot.getStackInSlot(0).getItem(), 1);
+        if (adjacent != null) {
+            LazyOptional<IItemHandler> capability = adjacent.getCapability(ForgeCapabilities.ITEM_HANDLER, faceOpposite);
+            capability.ifPresent(handler -> {
+                int slots = handler.getSlots();
+                for (int i = 0; i < slots; i++) {
+                    if (handler.getStackInSlot(i).is(this.outputSlot.getStackInSlot(0).getItem())) {
+                        if (handler.getStackInSlot(i).getCount() < handler.getSlotLimit(i)) {
+                            handler.insertItem(i, out, false);
+                            this.outputSlot.extractItem(0, 1, false);
+                            return;
+                        }
+                    }
+                    if (handler.getStackInSlot(i).is(ItemStack.EMPTY.getItem())) {
+                        handler.insertItem(i, out, false);
+                        this.outputSlot.extractItem(0, 1, false);
+                        return;
+                    }
+                }
+            });
+        }
+    }
+
+    public void pullFromAdjacent(Direction side){
+        //TODO
+    }
+}

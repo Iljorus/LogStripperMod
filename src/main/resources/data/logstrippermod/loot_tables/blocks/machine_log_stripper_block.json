@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "logstrippermod:machine_log_stripper_block"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "logstrippermod:blocks/machine_log_stripper_block"
+}

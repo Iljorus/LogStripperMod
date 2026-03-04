@@ -1,0 +1,12 @@
+{
+  "type": "logstrippermod:log_stripping",
+  "ingredients": [
+    {
+      "item": "minecraft:acacia_log"
+    }
+  ],
+  "result": {
+    "item": "minecraft:stripped_acacia_log",
+    "count": 1
+  }
+}
