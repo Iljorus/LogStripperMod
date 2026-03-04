@@ -19,5 +19,5 @@ Special credit goes to:
 
 ---
 <a href="https://brainmade.org">
-  <img width="500" height="156" alt="brainmade-white-logo" src="https://github.com/user-attachments/assets/12bfb00e-b186-4569-b123-6d8ec36f64da" />
+  <img width="500" height="156" alt="brainmade-white-logo" src="brainmade-white-logo.png" />
 </a>
