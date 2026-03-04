@@ -1,9 +1,7 @@
 package net.iljorus.logstrippermod.block.entity;
 
 import net.iljorus.logstrippermod.config.BaseConfig;
-import net.iljorus.logstrippermod.inventory.InputItemStackWrapper;
-import net.iljorus.logstrippermod.inventory.OutputItemStackWrapper;
-import net.iljorus.logstrippermod.inventory.SpecialItemHandler;
+import net.iljorus.logstrippermod.inventory.*;
 import net.iljorus.logstrippermod.recipe.LogStrippingRecipe;
 import net.iljorus.logstrippermod.screen.LogStripperMenu;
 import net.minecraft.core.BlockPos;
@@ -25,12 +23,12 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.Hopper;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,18 +39,16 @@ import java.util.Optional;
  * This class handles the functionality of the Log Stripper
  * */
 public class LogStripperBlockEntity extends BlockEntity implements MenuProvider {
-    protected ItemStackHandler inputSlot = new ItemStackHandler();
-    protected ItemStackHandler outputSlot = new ItemStackHandler();
-    protected SpecialItemHandler axeSlot = new SpecialItemHandler();
-    private InputItemStackWrapper inputSlotWrapper = new InputItemStackWrapper(inputSlot);
-    private OutputItemStackWrapper outputSlotWrapper = new OutputItemStackWrapper(outputSlot);
-    //protected SpecialItemStackWrapper axeSlotWrapper = new SpecialItemStackWrapper(axeSlot);
+    protected InputItemHandler inputSlot = new InputItemHandler(INPUT_SLOT);
+    protected OutputItemHandler outputSlot = new OutputItemHandler(OUTPUT_SLOT);
+    protected SpecialItemHandler axeSlot = new SpecialItemHandler(AXE_SLOT);
     public static final int INPUT_SLOT = 0;
     public static final int OUTPUT_SLOT = 1;
     public static final int AXE_SLOT = 2;
-    private LazyOptional<IItemHandler> inputSlotHandlerLazyOptional = LazyOptional.empty();
-    private LazyOptional<IItemHandler> outputSlotHandlerLazyOptional = LazyOptional.empty();
-    public LazyOptional<IItemHandler> axeSlotHandlerLazyOptional = LazyOptional.empty();
+    private LazyOptional<IItemHandler> inputAndAxeLazyOptional = LazyOptional.empty();
+    private LazyOptional<IItemHandler> outputLazyOptional = LazyOptional.empty();
+    public LazyOptional<IItemHandler> inputAndOutputAndAxeLazyOptional = LazyOptional.empty();
+    public LazyOptional<IItemHandler> inputAndOutputLazyOptional = LazyOptional.empty();
     protected final ContainerData data;
     private int progress = 0;
     private int maxProgress = BaseConfig.COMMON.DURATION.get();
@@ -89,11 +85,9 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
             if (side == null) {
                 if (BaseConfig.COMMON.AXE_SLOT.get()) {
-                    return LazyOptional.of(() -> new CombinedInvWrapper(inputSlotWrapper, outputSlotWrapper, axeSlot)).cast();
-                    //IDEALLY
-                    //return LazyOptional.of(()-> new CombinedInvWrapper(inputSlot, outputSlot, axeSlot).cast();
+                    return inputAndOutputAndAxeLazyOptional.cast();
                 } else {
-                    return LazyOptional.of(() -> new CombinedInvWrapper(inputSlotWrapper, outputSlotWrapper)).cast();
+                    return inputAndOutputLazyOptional.cast();
                 }
             }
             if (side == Direction.UP ||
@@ -101,10 +95,10 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
                     side == Direction.EAST ||
                     side == Direction.SOUTH ||
                     side == Direction.WEST) {
-                return LazyOptional.of(() -> new CombinedInvWrapper(inputSlotWrapper, axeSlot)).cast();
+                return inputAndAxeLazyOptional.cast();
             }
             if (side == Direction.DOWN) {
-                return LazyOptional.of(() -> outputSlotWrapper).cast();
+                return outputLazyOptional.cast();
             }
         }
         return super.getCapability(cap, side);
@@ -113,24 +107,26 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     public void onLoad() {
         super.onLoad();
-        inputSlotHandlerLazyOptional = LazyOptional.of(() -> inputSlot);
-        outputSlotHandlerLazyOptional = LazyOptional.of(() -> outputSlot);
-        axeSlotHandlerLazyOptional = LazyOptional.of(() -> axeSlot);
+        inputAndAxeLazyOptional = LazyOptional.of(() -> new CombinedInvWrapper(inputSlot, axeSlot));
+        outputLazyOptional = LazyOptional.of(() -> outputSlot);
+        inputAndOutputAndAxeLazyOptional = LazyOptional.of(() -> new CombinedInvWrapper(inputSlot, outputSlot, axeSlot));
+        inputAndOutputLazyOptional = LazyOptional.of(()-> new CombinedInvWrapper(inputSlot, outputSlot));
     }
 
     @Override
     public void invalidateCaps() {
         super.invalidateCaps();
-        inputSlotHandlerLazyOptional.invalidate();
-        outputSlotHandlerLazyOptional.invalidate();
-        axeSlotHandlerLazyOptional.invalidate();
+        inputAndAxeLazyOptional.invalidate();
+        outputLazyOptional.invalidate();
+        inputAndOutputAndAxeLazyOptional.invalidate();
+        inputAndOutputLazyOptional.invalidate();
     }
 
     public void drops() {
         SimpleContainer inventory = new SimpleContainer(3);
-        inventory.setItem(INPUT_SLOT, inputSlot.getStackInSlot(0));
-        inventory.setItem(OUTPUT_SLOT, outputSlot.getStackInSlot(0));
-        inventory.setItem(AXE_SLOT, axeSlot.getStackInSlot(0));
+        inventory.setItem(INPUT_SLOT, inputSlot.getStack());
+        inventory.setItem(OUTPUT_SLOT, outputSlot.getStack());
+        inventory.setItem(AXE_SLOT, axeSlot.getStack());
 
         Containers.dropContents(this.level, this.worldPosition, inventory);
     }
@@ -149,14 +145,8 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     protected void saveAdditional(CompoundTag pTag) {
         ListTag nbtTagList = new ListTag();
-        CompoundTag inputTag = new CompoundTag();
-        CompoundTag outputTag = new CompoundTag();
-        inputTag.putInt("Slot", INPUT_SLOT);
-        outputTag.putInt("Slot", OUTPUT_SLOT);
-        this.inputSlot.getStackInSlot(0).save(inputTag);
-        this.outputSlot.getStackInSlot(0).save(outputTag);
-        nbtTagList.add(inputTag);
-        nbtTagList.add(outputTag);
+        nbtTagList.add(inputSlot.serializeNBT());
+        nbtTagList.add(outputSlot.serializeNBT());
         nbtTagList.add(axeSlot.serializeNBT());
 
         CompoundTag nbt = new CompoundTag();
@@ -177,10 +167,10 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             int slot = itemTags.getInt("Slot");
 
             if (slot == INPUT_SLOT) {
-                this.inputSlot.setStackInSlot(0, ItemStack.of(itemTags));
+                this.inputSlot.deserializeNBT(itemTags);
             }
             if (slot == OUTPUT_SLOT) {
-                this.outputSlot.setStackInSlot(0, ItemStack.of(itemTags));
+                this.outputSlot.deserializeNBT(itemTags);
             }
             if (slot == AXE_SLOT) {
                 this.axeSlot.deserializeNBT(itemTags);

@@ -1,6 +1,5 @@
 package net.iljorus.logstrippermod.inventory;
 
-import net.iljorus.logstrippermod.block.entity.LogStripperBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -13,15 +12,17 @@ import org.jetbrains.annotations.NotNull;
 
 public class SpecialItemHandler implements IItemHandler, IItemHandlerModifiable, INBTSerializable<CompoundTag> {
     protected ItemStack stack;
+    protected int slot;
 
-    public SpecialItemHandler() {
+    public SpecialItemHandler(int slot) {
         stack = ItemStack.EMPTY;
+        this.slot = slot;
     }
 
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
-        tag.putInt("Slot", LogStripperBlockEntity.AXE_SLOT);
+        tag.putInt("Slot", slot);
         stack.save(tag);
         return tag;
     }
@@ -63,7 +64,7 @@ public class SpecialItemHandler implements IItemHandler, IItemHandlerModifiable,
             return stack;
         }
 
-        ItemStack existing = stack;
+        ItemStack existing = this.stack;
         int limit = Math.min(getSlotLimit(0), existing.getMaxStackSize());
 
         if (!existing.isEmpty()) {
@@ -80,7 +81,7 @@ public class SpecialItemHandler implements IItemHandler, IItemHandlerModifiable,
 
         if (!simulate) {
             if (existing.isEmpty()) {
-                stack = reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit) : stack;
+                this.stack = reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit) : stack;
             } else {
                 existing.grow(reachedLimit ? limit : stack.getCount());
             }
