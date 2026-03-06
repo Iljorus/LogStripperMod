@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -180,13 +181,17 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
-        if (shouldPreserveAxe()) {
-            //TODO
+        if (BaseConfig.COMMON.AXE_SLOT.get() && shouldPreserveAxe()) {
+            InventoryHelper.pushToAdjacent(this, this.axeSlot, 1, Direction.UP);
         }
         //if hasNeighborInventory -> pushIntoAdjacent & pullFromAdjacent
 
         if (hasRecipe()) {
-            increaseProgress();
+            if (!BaseConfig.COMMON.AXE_SLOT.get() || !getAxe().isEmpty()) {
+                increaseProgress();
+            } else {
+                decreaseProgress();
+            }
             InventoryHelper.pullFromAdjacent(this, this.axeSlot, 1, Direction.WEST);
             InventoryHelper.pullFromAdjacent(this, this.inputSlot, 1, Direction.WEST);
             InventoryHelper.pushToAdjacent(this, this.outputSlot, 1, Direction.UP);
@@ -209,19 +214,8 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         ItemStack result = recipe.get().getResultItem(getLevel().registryAccess());
         int batch_size = recipe.get().getIngredients().get(0).getItems()[0].getCount();
 
-        //If axe slot is enabled damage axe and increase output
         if (BaseConfig.COMMON.AXE_SLOT.get()) {
-            ItemStack axeCopy = getAxe().copy();
-            int destroySpeed = (int) axeCopy.getDestroySpeed(Blocks.OAK_LOG.defaultBlockState());
-            int efficiencyLevel = axeCopy.getEnchantmentLevel(Enchantments.BLOCK_EFFICIENCY);
-            int finalDestroySpeed = efficiencyLevel > 0 ? (destroySpeed + ((int) Math.pow(efficiencyLevel, 2)) + 1) : destroySpeed;
-            if (finalDestroySpeed > 64) {
-                finalDestroySpeed = 64;
-            }
-
-            axeCopy.setDamageValue(axeCopy.getDamageValue() + BaseConfig.COMMON.DURABILITY_DEDUCTION.get());
-            axeSlot.setStackInSlot(0, axeCopy);
-            axeSlot.setStackInSlot(0, axeCopy);
+            hurtAxe();
         }
 
         this.inputSlot.extractItem(0, batch_size, false);
@@ -237,20 +231,33 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         progress++;
     }
 
+    private void decreaseProgress() {
+        if (progress > 0) {
+            progress--;
+        }
+    }
+
     private boolean hasRecipe() {
         Optional<LogStrippingRecipe> recipe = fetchRecipe();
         if (recipe.isEmpty()) {
             return false;
         }
-
         ItemStack result = recipe.get().getResultItem(getLevel().registryAccess());
         return canOutputAmount(result.getCount()) && canOutputItem(result.getItem());
     }
 
     private boolean shouldPreserveAxe() {
-        return BaseConfig.COMMON.AXE_SLOT.get() &&
-                BaseConfig.COMMON.PRESERVE_AXE.get() &&
+        return BaseConfig.COMMON.PRESERVE_AXE.get() &&
                 getAxe().getDamageValue() + BaseConfig.COMMON.DURABILITY_DEDUCTION.get() >= getAxe().getMaxDamage();
+    }
+
+    private void hurtAxe() {
+        ItemStack axeCopy = getAxe().copy();
+        if (axeCopy.isEmpty()) {
+            return;
+        }
+        axeCopy.hurt(BaseConfig.COMMON.DURABILITY_DEDUCTION.get(), RandomSource.create(), null);
+        axeSlot.setStackInSlot(0, axeCopy);
     }
 
     private Optional<LogStrippingRecipe> fetchRecipe() {
