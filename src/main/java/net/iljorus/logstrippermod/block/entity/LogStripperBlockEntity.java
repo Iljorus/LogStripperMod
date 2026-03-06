@@ -4,6 +4,7 @@ import net.iljorus.logstrippermod.config.BaseConfig;
 import net.iljorus.logstrippermod.inventory.*;
 import net.iljorus.logstrippermod.recipe.LogStrippingRecipe;
 import net.iljorus.logstrippermod.screen.LogStripperMenu;
+import net.iljorus.logstrippermod.util.helpers.InventoryHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -23,7 +24,6 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.Hopper;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -110,7 +110,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         inputAndAxeLazyOptional = LazyOptional.of(() -> new CombinedInvWrapper(inputSlot, axeSlot));
         outputLazyOptional = LazyOptional.of(() -> outputSlot);
         inputAndOutputAndAxeLazyOptional = LazyOptional.of(() -> new CombinedInvWrapper(inputSlot, outputSlot, axeSlot));
-        inputAndOutputLazyOptional = LazyOptional.of(()-> new CombinedInvWrapper(inputSlot, outputSlot));
+        inputAndOutputLazyOptional = LazyOptional.of(() -> new CombinedInvWrapper(inputSlot, outputSlot));
     }
 
     @Override
@@ -183,16 +183,18 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         if (shouldPreserveAxe()) {
             //TODO
         }
-
+        //if hasNeighborInventory -> pushIntoAdjacent & pullFromAdjacent
 
         if (hasRecipe()) {
             increaseProgress();
-            setChanged(pLevel, pPos, pState);
+            InventoryHelper.pullFromAdjacent(this, this.axeSlot, 1, Direction.WEST);
+            InventoryHelper.pullFromAdjacent(this, this.inputSlot, 1, Direction.WEST);
+            InventoryHelper.pushToAdjacent(this, this.outputSlot, 1, Direction.UP);
             if (progressFinished()) {
                 craftItem();
                 resetProgress();
-                pushIntoAdjacent(Direction.UP);
             }
+            setChanged(pLevel, pPos, pState);
         } else {
             resetProgress();
         }
@@ -267,39 +269,5 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
 
     public ItemStack getAxe() {
         return this.axeSlot.getStackInSlot(0);
-    }
-
-    private void pushIntoAdjacent(Direction side){  //TODO if receive "neighborUpdate" push entire output slot to container
-        Level level = this.getLevel();
-        BlockPos pos = this.getBlockPos();
-        Direction faceOpposite = side.getOpposite();
-
-        pos = pos.relative(side);
-        BlockEntity adjacent = level.getBlockEntity(pos);
-        ItemStack out = new ItemStack(this.outputSlot.getStackInSlot(0).getItem(), 1);
-        if (adjacent != null) {
-            LazyOptional<IItemHandler> capability = adjacent.getCapability(ForgeCapabilities.ITEM_HANDLER, faceOpposite);
-            capability.ifPresent(handler -> {
-                int slots = handler.getSlots();
-                for (int i = 0; i < slots; i++) {
-                    if (handler.getStackInSlot(i).is(this.outputSlot.getStackInSlot(0).getItem())) {
-                        if (handler.getStackInSlot(i).getCount() < handler.getSlotLimit(i)) {
-                            handler.insertItem(i, out, false);
-                            this.outputSlot.extractItem(0, 1, false);
-                            return;
-                        }
-                    }
-                    if (handler.getStackInSlot(i).is(ItemStack.EMPTY.getItem())) {
-                        handler.insertItem(i, out, false);
-                        this.outputSlot.extractItem(0, 1, false);
-                        return;
-                    }
-                }
-            });
-        }
-    }
-
-    public void pullFromAdjacent(Direction side){
-        //TODO
     }
 }
