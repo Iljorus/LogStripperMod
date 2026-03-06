@@ -44,7 +44,7 @@ public class InventoryHelper {
     public static boolean pushToAdjacent(BlockEntity origin, IItemHandler originHandler, int amount, Direction side) {
         ItemStack originStack = originHandler.getStackInSlot(0).copy();
         originStack.setCount(Math.min(amount, originStack.getCount()));
-        if(originStack.isEmpty()){
+        if (originStack.isEmpty()) {
             return false;
         }
 
@@ -67,7 +67,7 @@ public class InventoryHelper {
         int slotCount = adjacentHandler.getSlots();
         for (int i = 0; i < slotCount; i++) {
             ItemStack returned = adjacentHandler.insertItem(i, originStack, true);
-            if(returned.getCount() < originStack.getCount()){
+            if (returned.getCount() < originStack.getCount()) {
                 adjacentHandler.insertItem(i, originHandler.extractItem(0, Math.min(amount, originStack.getCount()), false), false);
                 return true;
             }
