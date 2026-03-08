@@ -20,7 +20,6 @@ public class LogStrippingRecipe implements Recipe<SimpleContainer> {
     private final ItemStack output;
     private final ResourceLocation id;
 
-
     public LogStrippingRecipe(NonNullList<Ingredient> inputItems, ItemStack output, ResourceLocation id) {
         this.inputItems = inputItems;
         this.output = output;
@@ -32,7 +31,6 @@ public class LogStrippingRecipe implements Recipe<SimpleContainer> {
         if (pLevel.isClientSide()) {
             return false;
         }
-
         return inputItems.get(0).test(pContainer.getItem(LogStripperBlockEntity.INPUT_SLOT));
     }
 
