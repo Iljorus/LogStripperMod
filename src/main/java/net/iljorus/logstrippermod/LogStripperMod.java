@@ -8,10 +8,12 @@ import net.iljorus.logstrippermod.gui.LogStripperScreen;
 import net.iljorus.logstrippermod.gui.ModMenuTypes;
 import net.iljorus.logstrippermod.item.ModItems;
 import net.iljorus.logstrippermod.recipe.ModRecipes;
+import net.iljorus.logstrippermod.util.Utils;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -73,6 +75,16 @@ public class LogStripperMod {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             MenuScreens.register(ModMenuTypes.LOG_STRIPPER_MENU.get(), LogStripperScreen::new);
+        }
+    }
+
+    @Mod.EventBusSubscriber(modid = MOD_ID)
+    public static class CoreEvents {
+        @SubscribeEvent
+        public static void serverTick(TickEvent.ServerTickEvent event) {
+            if (event.phase == TickEvent.Phase.START) {
+                Utils.tickTime();
+            }
         }
     }
 }
