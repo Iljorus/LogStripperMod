@@ -6,6 +6,7 @@ import net.iljorus.logstrippermod.inventory.InputItemHandler;
 import net.iljorus.logstrippermod.inventory.OutputItemHandler;
 import net.iljorus.logstrippermod.inventory.SpecialItemHandler;
 import net.iljorus.logstrippermod.recipe.LogStrippingRecipe;
+import net.iljorus.logstrippermod.util.Utils;
 import net.iljorus.logstrippermod.util.helpers.InventoryHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,7 +35,7 @@ import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
+import java.util.*;
 
 /*
  * This class handles the functionality of the Log Stripper
@@ -53,9 +54,48 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     protected final ContainerData data;
     private int progress = 0;
     private int maxProgress = BaseConfig.COMMON.DURATION.get();
+    private final List<SimplePair<Direction, IItemHandler>> pullConfiguration = new ArrayList<>(6);
+    private final List<SimplePair<Direction, IItemHandler>> pushConfiguration = new ArrayList<>(6);
+
+    public static class SimplePair<L, R> {
+        private L l;
+        private R r;
+
+        public SimplePair(L l, R r) {
+            this.l = l;
+            this.r = r;
+        }
+
+        public L getDirection() {
+            return l;
+        }
+
+        public R getIItemHandler() {
+            return r;
+        }
+
+        public void setDirection(L l) {
+            this.l = l;
+        }
+
+        public void setIItemHandler(R r) {
+            this.r = r;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SimplePair<?, ?> that = (SimplePair<?, ?>) o;
+            return Objects.equals(l, that.l) && Objects.equals(r, that.r);
+        }
+    }
 
     public LogStripperBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntity.MACHINE_LOG_STRIPPER_BLOCK_ENTITY.get(), pPos, pBlockState);
+        pushConfiguration.add(new SimplePair<>(Direction.UP, this.outputSlot));
+        pullConfiguration.add(new SimplePair<>(Direction.WEST, this.inputSlot));
+        pullConfiguration.add(new SimplePair<>(Direction.WEST, this.axeSlot));
         this.data = new ContainerData() {
             @Override
             public int get(int pIndex) {
@@ -184,7 +224,6 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         if (BaseConfig.COMMON.AXE_SLOT.get() && shouldPreserveAxe()) {
             InventoryHelper.pushToAdjacent(this, this.axeSlot, 1, Direction.UP);
         }
-        //if hasNeighborInventory -> pushIntoAdjacent & pullFromAdjacent
 
         if (hasRecipe()) {
             if (!BaseConfig.COMMON.AXE_SLOT.get() || !getAxe().isEmpty()) {
@@ -192,16 +231,20 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             } else {
                 decreaseProgress();
             }
-            InventoryHelper.pullFromAdjacent(this, this.axeSlot, 1, Direction.WEST);
-            InventoryHelper.pullFromAdjacent(this, this.inputSlot, 1, Direction.WEST);
-            InventoryHelper.pushToAdjacent(this, this.outputSlot, 1, Direction.UP);
+
             if (progressFinished()) {
                 craftItem();
                 resetProgress();
+                transferOutput();
+                transferInput();
             }
             setChanged(pLevel, pPos, pState);
         } else {
             resetProgress();
+            if (Utils.updateRateNormal()) {
+                transferOutput();
+                transferInput();
+            }
         }
     }
 
@@ -276,5 +319,19 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
 
     public ItemStack getAxe() {
         return this.axeSlot.getStackInSlot(0);
+    }
+
+    public void transferOutput() {
+        pushConfiguration.forEach(pair -> {
+            IItemHandler itemHandler = pair.getIItemHandler();
+            InventoryHelper.pushToAdjacent(this, itemHandler, itemHandler.getStackInSlot(0).getCount(), pair.getDirection());
+        });
+    }
+
+    public void transferInput() {
+        pullConfiguration.forEach(pair -> {
+            IItemHandler itemHandler = pair.getIItemHandler();
+            InventoryHelper.pullFromAdjacent(this, itemHandler, itemHandler.getSlotLimit(0)-itemHandler.getStackInSlot(0).getCount(), pair.getDirection());
+        });
     }
 }
