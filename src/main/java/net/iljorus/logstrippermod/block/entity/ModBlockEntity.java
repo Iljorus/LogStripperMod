@@ -9,9 +9,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 /*
- * Handles the registry of BlockEntities
+ * Handles the registry of block entities
  * */
-
 public class ModBlockEntity {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, LogStripperMod.MOD_ID);

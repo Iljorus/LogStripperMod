@@ -10,13 +10,17 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 
+/*
+ * This IItemHandler implementation disallows for Axes to be placed into
+ * */
+
 public class InputItemHandler implements IItemHandler, IItemHandlerModifiable, INBTSerializable<CompoundTag> {
     protected ItemStack stack;
     protected int slot;
 
     public InputItemHandler(int slot) {
         stack = ItemStack.EMPTY;
-        this.slot=slot;
+        this.slot = slot;
     }
 
     @Override

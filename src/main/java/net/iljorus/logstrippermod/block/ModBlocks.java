@@ -15,13 +15,16 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
+/*
+ * Handles the registry of normal blocks
+ * */
 
 public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, LogStripperMod.MOD_ID);
 
     public static final RegistryObject<Block> MACHINE_LOG_STRIPPER = registerBlock("machine_log_stripper_block",
-            () -> new LogStripperBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).requiresCorrectToolForDrops().noOcclusion()));
+            () -> new LogStripperBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).requiresCorrectToolForDrops().noOcclusion().destroyTime(2.5F)));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
