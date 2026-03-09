@@ -41,9 +41,27 @@ import java.util.*;
  * This class handles the functionality of the Log Stripper
  * */
 public class LogStripperBlockEntity extends BlockEntity implements MenuProvider {
-    protected InputItemHandler inputSlot = new InputItemHandler(INPUT_SLOT);
-    protected OutputItemHandler outputSlot = new OutputItemHandler(OUTPUT_SLOT);
-    protected SpecialItemHandler axeSlot = new SpecialItemHandler(AXE_SLOT);
+    protected InputItemHandler inputSlot = new InputItemHandler(INPUT_SLOT) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            setChanged();
+        }
+    };
+    protected OutputItemHandler outputSlot = new OutputItemHandler(OUTPUT_SLOT) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            setChanged();
+        }
+    };
+    protected SpecialItemHandler axeSlot = new SpecialItemHandler(AXE_SLOT) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            setChanged();
+        }
+    };
     public static final int INPUT_SLOT = 0;
     public static final int OUTPUT_SLOT = 1;
     public static final int AXE_SLOT = 2;
@@ -179,7 +197,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
+    public AbstractContainerMenu createMenu(int pContainerId, @NotNull Inventory pPlayerInventory, @NotNull Player pPlayer) {
         return new LogStripperMenu(pContainerId, pPlayerInventory, this, this.data);
     }
 
@@ -235,15 +253,13 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             if (progressFinished()) {
                 craftItem();
                 resetProgress();
-                transferOutput();
-                transferInput();
+                transferItems();
             }
-            setChanged(pLevel, pPos, pState);
+            setChanged();
         } else {
             resetProgress();
             if (Utils.updateRateNormal()) {
-                transferOutput();
-                transferInput();
+                transferItems();
             }
         }
     }
@@ -332,6 +348,23 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         pullConfiguration.forEach(pair -> {
             IItemHandler itemHandler = pair.getIItemHandler();
             InventoryHelper.pullFromAdjacent(this, itemHandler, itemHandler.getSlotLimit(0)-itemHandler.getStackInSlot(0).getCount(), pair.getDirection());
+        });
+    }
+
+    public void transferItems() {
+        sideConfiguration.forEach(tripple -> {
+            IItemHandler itemHandler = tripple.getIItemHandler();
+            Action action = tripple.getAction();
+            switch (action) {
+                case PUSH ->
+                        InventoryHelper.pushToAdjacent(this, itemHandler, itemHandler.getStackInSlot(0).getCount(), tripple.getDirection());
+                case PULL ->
+                        InventoryHelper.pullFromAdjacent(this, itemHandler, itemHandler.getSlotLimit(0) - itemHandler.getStackInSlot(0).getCount(), tripple.getDirection());
+                case BOTH -> {
+                    InventoryHelper.pushToAdjacent(this, itemHandler, itemHandler.getStackInSlot(0).getCount(), tripple.getDirection());
+                    InventoryHelper.pullFromAdjacent(this, itemHandler, itemHandler.getSlotLimit(0) - itemHandler.getStackInSlot(0).getCount(), tripple.getDirection());
+                }
+            }
         });
     }
 }

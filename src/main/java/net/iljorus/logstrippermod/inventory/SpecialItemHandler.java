@@ -43,6 +43,7 @@ public class SpecialItemHandler implements IItemHandler, IItemHandlerModifiable,
     @Override
     public void setStackInSlot(int slot, @NotNull ItemStack stack) {
         this.stack = stack;
+        onContentsChanged(slot);
     }
 
     @Override
@@ -89,6 +90,7 @@ public class SpecialItemHandler implements IItemHandler, IItemHandlerModifiable,
             } else {
                 existing.grow(reachedLimit ? limit : stack.getCount());
             }
+            onContentsChanged(slot);
         }
 
         return reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - limit) : ItemStack.EMPTY;
@@ -109,6 +111,7 @@ public class SpecialItemHandler implements IItemHandler, IItemHandlerModifiable,
         if (existing.getCount() <= toExtract) {
             if (!simulate) {
                 stack = ItemStack.EMPTY;
+                onContentsChanged(slot);
                 return existing;
             } else {
                 return existing.copy();
@@ -116,6 +119,7 @@ public class SpecialItemHandler implements IItemHandler, IItemHandlerModifiable,
         } else {
             if (!simulate) {
                 stack.setCount(existing.getCount() - toExtract);
+                onContentsChanged(slot);
             }
 
             return ItemHandlerHelper.copyStackWithSize(existing, toExtract);
@@ -134,5 +138,9 @@ public class SpecialItemHandler implements IItemHandler, IItemHandlerModifiable,
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
         return stack.getItem().canPerformAction(Items.OAK_LOG.getDefaultInstance(), ToolActions.AXE_STRIP);
+    }
+
+    protected void onContentsChanged(int slot) {
+
     }
 }
