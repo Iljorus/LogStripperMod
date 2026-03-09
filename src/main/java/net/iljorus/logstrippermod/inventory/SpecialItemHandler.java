@@ -10,6 +10,10 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 
+/*
+ * This IItemHandler implementation only allows axes to be inserted
+ * */
+
 public class SpecialItemHandler implements IItemHandler, IItemHandlerModifiable, INBTSerializable<CompoundTag> {
     protected ItemStack stack;
     protected int slot;

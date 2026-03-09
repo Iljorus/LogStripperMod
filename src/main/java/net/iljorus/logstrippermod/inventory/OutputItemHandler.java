@@ -8,6 +8,10 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 
+/*
+ * This IItemHandler implementation disallows items to be inserted
+ * */
+
 public class OutputItemHandler implements IItemHandler, IItemHandlerModifiable, INBTSerializable<CompoundTag> {
     protected ItemStack stack;
     protected int slot;
