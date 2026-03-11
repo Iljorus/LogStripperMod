@@ -1,6 +1,7 @@
 package net.iljorus.logstrippermod;
 
 import net.iljorus.logstrippermod.block.ModBlocks;
+import net.iljorus.logstrippermod.item.ModItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -18,6 +19,7 @@ public class ModCreativeModeTabs {
                     .title(Component.translatable("creativetab.log_stripper_tab"))
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(ModBlocks.MACHINE_LOG_STRIPPER.get());
+                        pOutput.accept(ModItems.DIGITAL_AXE_HEAD.get());
                     })
                     .build());
 
