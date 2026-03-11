@@ -21,9 +21,9 @@ import java.util.ArrayList;
 
 public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> {
     public static final ResourceLocation BASE_NO_AXE =
-            ResourceLocation.fromNamespaceAndPath(LogStripperMod.MOD_ID, GuiConstants.BASE_TEXTURE_NO_AXE_LOCATION);
+            ResourceLocation.fromNamespaceAndPath(LogStripperMod.MOD_ID, "textures/gui/log_stripper_no_axe.png");
     public static final ResourceLocation BASE_WITH_AXE =
-            ResourceLocation.fromNamespaceAndPath(LogStripperMod.MOD_ID, GuiConstants.BASE_TEXTURE_WITH_AXE_LOCATION);
+            ResourceLocation.fromNamespaceAndPath(LogStripperMod.MOD_ID, "textures/gui/log_stripper_with_axe.png");
     public static final ResourceLocation PROGRESS_ICON =
             ResourceLocation.fromNamespaceAndPath(LogStripperMod.MOD_ID, "textures/gui/scale_saw.png");
     public static final ResourceLocation DURABILITY_INDICATOR =
