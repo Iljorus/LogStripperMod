@@ -30,7 +30,6 @@ public class LogStrippingCategory implements IRecipeCategory<LogStrippingRecipe>
     public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(LogStripperMod.MOD_ID, "log_stripping");
     public static final RecipeType<LogStrippingRecipe> LOG_STRIPPING_TYPE = new RecipeType<>(UID, LogStrippingRecipe.class);
 
-
     private final IDrawable background;
     private final IDrawable icon;
     private Component name;
@@ -38,10 +37,8 @@ public class LogStrippingCategory implements IRecipeCategory<LogStrippingRecipe>
     private IDrawableAnimated progress;
     private NonNullList<IDrawableStatic> slots = NonNullList.create();
 
-
     public LogStrippingCategory(IGuiHelper helper) {
-        //this.background = helper.createDrawable(BASE, 0, 0, 176, 83);
-        this.background = helper.drawableBuilder(LogStripperScreen.BASE_NO_AXE, 26, 11, 140, 62)
+        this.background = helper.drawableBuilder(LogStripperScreen.LOG_STRIPPER_BASE, 26, 11, 140, 62)
                 .addPadding(0, 0, 16, 8)
                 .build();
         this.icon = helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.MACHINE_LOG_STRIPPER.get()));
