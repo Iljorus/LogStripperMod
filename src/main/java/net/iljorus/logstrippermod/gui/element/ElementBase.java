@@ -8,14 +8,14 @@ public class ElementBase {
     protected final int width;
     protected final int height;
 
-    public ElementBase(int posX, int posY, int width, int height) {
+    protected ElementBase(int posX, int posY, int width, int height) {
         this.posX = posX;
         this.posY = posY;
         this.width = width;
         this.height = height;
     }
 
-    public boolean isHovered(int mouseX, int mouseY) {
+    public boolean isHovered(double mouseX, double mouseY) {
         return mouseX >= this.posX && mouseX < this.posX + this.width && mouseY >= this.posY && mouseY < this.posY + this.height;
     }
 
@@ -23,9 +23,16 @@ public class ElementBase {
         return null;
     }
 
-    public void drawBackground(){}
+    public void drawBackground() {
+    }
 
-    public void drawForeground(){}
+    public void drawForeground() {
+    }
 
-    public void drawTooltip(){}
+    public void drawTooltip() {
+    }
+
+    public boolean mouseClicked(double x, double y, int button) {
+        return false;
+    }
 }
