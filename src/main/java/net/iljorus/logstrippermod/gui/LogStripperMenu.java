@@ -2,6 +2,7 @@ package net.iljorus.logstrippermod.gui;
 
 import net.iljorus.logstrippermod.block.ModBlocks;
 import net.iljorus.logstrippermod.block.entity.LogStripperBlockEntity;
+import net.iljorus.logstrippermod.block.entity.config.RedstoneConfig;
 import net.iljorus.logstrippermod.config.BaseConfig;
 import net.iljorus.logstrippermod.inventory.slot.OutPutSlotItemHandler;
 import net.iljorus.logstrippermod.inventory.slot.SpecialSlotItemHandler;
@@ -19,14 +20,13 @@ import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 /*
- * Called when player wants to open the TE-Inventory.
+ * Called when player opens the TE-Inventory.
  * Handles Player-Inventory & TE-Inventory communication.
  * */
-
 public class LogStripperMenu extends AbstractContainerMenu {
     public final LogStripperBlockEntity blockEntity;
     private final Level level;
-    //Defined in LogStripperBlockEntity class, [0]=progress, [1]=maxProgress
+    //Defined in LogStripperBlockEntity class, [0]=progress, [1]=maxProgress, [2]=redstoneConfig
     private final ContainerData data;
 
     public LogStripperMenu(int pContainerId, Inventory inv, FriendlyByteBuf extraData) {
@@ -78,6 +78,14 @@ public class LogStripperMenu extends AbstractContainerMenu {
         int durability = maxDurability - stack.getDamageValue();
 
         return maxDurability != 0 ? scaleSize * durability / maxDurability : 0;
+    }
+
+    public RedstoneConfig getRedstoneConfig() {
+        return RedstoneConfig.fromIntValue(this.data.get(2));
+    }
+
+    public void setRedstoneConfig(RedstoneConfig config) {
+        this.data.set(2, config.getIntValue());
     }
 
     // must assign a slot number to each of the slots used by the GUI.

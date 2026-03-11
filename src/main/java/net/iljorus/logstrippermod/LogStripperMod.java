@@ -77,5 +77,12 @@ public class LogStripperMod {
         public static void loadEvent(LevelEvent.Load event) {
         }
     }
+
+    @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    public static class CoreModEvents {
+        @SubscribeEvent
+        public static void networkSetup(FMLCommonSetupEvent event) {
+            event.enqueueWork(ModPacketHandler::register);
+        }
     }
 }

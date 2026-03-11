@@ -1,5 +1,6 @@
 package net.iljorus.logstrippermod.block.entity;
 
+import net.iljorus.logstrippermod.block.entity.config.RedstoneConfig;
 import net.iljorus.logstrippermod.config.BaseConfig;
 import net.iljorus.logstrippermod.gui.LogStripperMenu;
 import net.iljorus.logstrippermod.inventory.InputItemHandler;
@@ -35,10 +36,12 @@ import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /*
- * This class handles the functionality of the Log Stripper
+ *Handles the functionality of the machine
  * */
 public class LogStripperBlockEntity extends BlockEntity implements MenuProvider {
     protected InputItemHandler inputSlot = new InputItemHandler(INPUT_SLOT) {
@@ -67,9 +70,9 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     public static final int AXE_SLOT = 2;
     private LazyOptional<IItemHandler> inputAndAxeLazyOptional = LazyOptional.empty();
     private LazyOptional<IItemHandler> outputLazyOptional = LazyOptional.empty();
-    public LazyOptional<IItemHandler> inputAndOutputAndAxeLazyOptional = LazyOptional.empty();
-    public LazyOptional<IItemHandler> inputAndOutputLazyOptional = LazyOptional.empty();
-    protected final ContainerData data;
+    private LazyOptional<IItemHandler> inputAndOutputAndAxeLazyOptional = LazyOptional.empty();
+    private LazyOptional<IItemHandler> inputAndOutputLazyOptional = LazyOptional.empty();
+    private final ContainerData data;
     private int progress = 0;
     private int maxProgress = BaseConfig.COMMON.DURATION.get();
     private final List<SimplePair<Direction, IItemHandler>> pullConfiguration = new ArrayList<>(6);
@@ -114,12 +117,14 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         pushConfiguration.add(new SimplePair<>(Direction.UP, this.outputSlot));
         pullConfiguration.add(new SimplePair<>(Direction.WEST, this.inputSlot));
         pullConfiguration.add(new SimplePair<>(Direction.WEST, this.axeSlot));
+        redstoneConfig = RedstoneConfig.NONE;
         this.data = new ContainerData() {
             @Override
             public int get(int pIndex) {
                 return switch (pIndex) {
                     case 0 -> LogStripperBlockEntity.this.progress;
                     case 1 -> LogStripperBlockEntity.this.maxProgress;
+                    case 2 -> LogStripperBlockEntity.this.redstoneConfig.getIntValue();
                     default -> 0;
                 };
             }
@@ -129,12 +134,13 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
                 switch (pIndex) {
                     case 0 -> LogStripperBlockEntity.this.progress = pValue;
                     case 1 -> LogStripperBlockEntity.this.maxProgress = pValue;
+                    case 2 -> LogStripperBlockEntity.this.redstoneConfig = RedstoneConfig.fromIntValue(pValue);
                 }
             }
 
             @Override
             public int getCount() {
-                return 2;
+                return 3;
             }
         };
     }
@@ -214,6 +220,8 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
 
         pTag.put("inventory", nbt);
         pTag.putInt("machine_log_stripper_block.progress", progress);
+
+        pTag.putInt("machine_log_stripper_block.redstone_config", redstoneConfig.getIntValue());
         super.saveAdditional(pTag);
     }
 
@@ -236,6 +244,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             }
         }
         progress = pTag.getInt("machine_log_stripper_block.progress");
+        redstoneConfig = RedstoneConfig.fromIntValue(pTag.getInt("machine_log_stripper_block.redstone_config"));
     }
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
@@ -243,7 +252,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             InventoryHelper.pushToAdjacent(this, this.axeSlot, 1, Direction.UP);
         }
 
-        if (hasRecipe()) {
+        if (redstoneControlIsActive() && hasRecipe()) {
             if (!BaseConfig.COMMON.AXE_SLOT.get() || !getAxe().isEmpty()) {
                 increaseProgress();
             } else {
@@ -257,7 +266,11 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             }
             setChanged();
         } else {
-            resetProgress();
+            if (!redstoneControlIsActive()) {
+                decreaseProgress();
+            } else {
+                resetProgress();
+            }
             if (Utils.updateRateNormal()) {
                 transferItems();
             }
@@ -337,21 +350,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         return this.axeSlot.getStackInSlot(0);
     }
 
-    public void transferOutput() {
-        pushConfiguration.forEach(pair -> {
-            IItemHandler itemHandler = pair.getIItemHandler();
-            InventoryHelper.pushToAdjacent(this, itemHandler, itemHandler.getStackInSlot(0).getCount(), pair.getDirection());
-        });
-    }
-
-    public void transferInput() {
-        pullConfiguration.forEach(pair -> {
-            IItemHandler itemHandler = pair.getIItemHandler();
-            InventoryHelper.pullFromAdjacent(this, itemHandler, itemHandler.getSlotLimit(0)-itemHandler.getStackInSlot(0).getCount(), pair.getDirection());
-        });
-    }
-
-    public void transferItems() {
+    private void transferItems() {
         sideConfiguration.forEach(tripple -> {
             IItemHandler itemHandler = tripple.getIItemHandler();
             Action action = tripple.getAction();
@@ -366,5 +365,24 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
                 }
             }
         });
+    }
+
+    private boolean isPowered() {
+        return this.level.hasNeighborSignal(this.getBlockPos());
+    }
+
+    private boolean redstoneControlIsActive() {
+        if (redstoneConfig.equals(RedstoneConfig.LOW)) {
+            return !isPowered();
+        } else if (redstoneConfig.equals(RedstoneConfig.HIGH)) {
+            return isPowered();
+        }
+        //This includes RedstoneConfig.NONE
+        return true;
+    }
+
+    public void setRedstoneConfig(RedstoneConfig config) {
+        this.redstoneConfig = config;
+        this.setChanged();
     }
 }

@@ -5,6 +5,7 @@ import net.iljorus.logstrippermod.LogStripperMod;
 import net.iljorus.logstrippermod.config.BaseConfig;
 import net.iljorus.logstrippermod.gui.element.DurabilityIndicatorElement;
 import net.iljorus.logstrippermod.gui.element.ElementBase;
+import net.iljorus.logstrippermod.gui.element.RedstoneControlElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -31,8 +32,9 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
             ResourceLocation.fromNamespaceAndPath(LogStripperMod.MOD_ID, "textures/gui/axe_slot.png");
     public static final ResourceLocation SLOT =
             ResourceLocation.fromNamespaceAndPath(LogStripperMod.MOD_ID, "textures/gui/slot.png");
-
-    private ArrayList<ElementBase> elements = new ArrayList<>();
+    public static final ResourceLocation REDSTONE_BUTTONS =
+            ResourceLocation.fromNamespaceAndPath(LogStripperMod.MOD_ID, "textures/gui/redstone_buttons.png");
+    private final ArrayList<ElementBase> elements = new ArrayList<>();
 
     public LogStripperScreen(LogStripperMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
@@ -69,6 +71,7 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         }
 
         renderProgressIcon(guiGraphics, x, y);
+        renderRedstoneControls(guiGraphics, x, y);
     }
 
     /*
@@ -105,6 +108,12 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         int scaledAxeDurability = menu.getScaledAxeDurability();
         guiGraphics.blit(DURABILITY_INDICATOR, x + 8, y + 8, 1, 0, 0, 16, 42, 256, 256);
         guiGraphics.blit(DURABILITY_INDICATOR, x + 8, y + 8 + (42 - scaledAxeDurability), 2, 16, 42 - scaledAxeDurability, 16, scaledAxeDurability, 256, 256);
+    }
+
+    public void renderRedstoneControls(GuiGraphics guiGraphics, int x, int y) {
+        int pUOffset = this.menu.getRedstoneConfig().getIntValue() * 14;
+        int pVOffset = 0;
+        guiGraphics.blit(REDSTONE_BUTTONS, x + 117, y + 65, 2, pUOffset, pVOffset, 14, 14, 256, 256);
     }
 
     private void drawTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
