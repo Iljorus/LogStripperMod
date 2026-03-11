@@ -41,6 +41,14 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
     protected void init() {
         super.init();
         this.titleLabelX = 31; //35
+        elements.add(new DurabilityIndicatorElement(leftPos + 8, topPos + 8, 16, 42, menu));
+        elements.add(new RedstoneControlElement(leftPos + 117, topPos + 65, 14, 14, menu));
+    }
+
+    @Override
+    public void onClose() {
+        elements.clear();
+        super.onClose();
     }
 
     /*
@@ -50,19 +58,21 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        int x = (width - imageWidth) / 2;
-        int y = (height - imageHeight) / 2;
+        int x = leftPos;
+        int y = topPos;
+
         if (BaseConfig.COMMON.AXE_SLOT.get()) {
-            renderWithAxe(guiGraphics, x, y, pPartialTick, pMouseX, pMouseY);
+            renderWithAxe(guiGraphics, x, y);
             renderAxeDurability(guiGraphics, x, y);
         } else {
-            renderNoAxe(guiGraphics, x, y, pPartialTick, pMouseX, pMouseY);
+            renderNoAxe(guiGraphics, x, y);
         }
         guiGraphics.blit(PROGRESS_ICON, x + 81, y + 34, 1, 0, 0, 16, 16, 256, 256);
         renderProgressIcon(guiGraphics, x, y);
     }
 
     private void renderProgressIcon(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(PROGRESS_ICON, x + 81, y + 34, 1, 0, 0, 16, 16, 256, 256);
         if (menu.isCrafting()) {
             guiGraphics.blit(PROGRESS_ICON, x + 81, y + 34, 2, 16, 0, menu.getScaledProgress(), 16, 256, 256);
         }
@@ -81,15 +91,14 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         }
     }
 
-    private void renderNoAxe(GuiGraphics guiGraphics, int x, int y, float pPartialTick, int pMouseX, int pMouseY) {
+    private void renderNoAxe(GuiGraphics guiGraphics, int x, int y) {
         RenderSystem.setShaderTexture(0, BASE_NO_AXE);
         guiGraphics.blit(BASE_NO_AXE, x, y, 0, 0, 0, imageWidth, imageHeight, 256, 256);
     }
 
-    private void renderWithAxe(GuiGraphics guiGraphics, int x, int y, float pPartialTick, int pMouseX, int pMouseY) {
+    private void renderWithAxe(GuiGraphics guiGraphics, int x, int y) {
         RenderSystem.setShaderTexture(0, BASE_WITH_AXE);
         guiGraphics.blit(BASE_WITH_AXE, x, y, 0, 0, 0, imageWidth, imageHeight, 256, 256);
-        elements.add(new DurabilityIndicatorElement(x + 8, y + 8, 16, 42, menu));
         guiGraphics.blit(DURABILITY_INDICATOR, x + 8, y + 8, 1, 0, 0, 16, 42, 256, 256);
     }
 
@@ -103,11 +112,10 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         if (el == null) {
             return;
         }
-        //el.drawTooltip
         guiGraphics.renderTooltip(font, el.getTooltip(), mouseX, mouseY);
     }
 
-    private ElementBase getElementAtPosition(int mouseX, int mouseY) {
+    private ElementBase getElementAtPosition(double mouseX, double mouseY) {
         for (ElementBase el : elements) {
             if (el.isHovered(mouseX, mouseY)) {
                 return el;
