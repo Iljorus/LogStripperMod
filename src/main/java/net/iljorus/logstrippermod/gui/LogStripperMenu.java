@@ -97,7 +97,7 @@ public class LogStripperMenu extends AbstractContainerMenu {
     private static final int TE_INVENTORY_SLOT_COUNT = BaseConfig.COMMON.AXE_SLOT.get() ? 3 : 2;
 
     @Override
-    public ItemStack quickMoveStack(Player playerIn, int pIndex) {  //TODO add axe support (supposed to go in slot two)
+    public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int pIndex) {  //TODO add axe support (supposed to go in slot two)
         Slot sourceSlot = slots.get(pIndex);
         if (sourceSlot == null || !sourceSlot.hasItem()) {
             return ItemStack.EMPTY;
@@ -138,7 +138,7 @@ public class LogStripperMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(Player pPlayer) {
+    public boolean stillValid(@NotNull Player pPlayer) {
         return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
                 pPlayer, ModBlocks.MACHINE_LOG_STRIPPER.get());
     }
