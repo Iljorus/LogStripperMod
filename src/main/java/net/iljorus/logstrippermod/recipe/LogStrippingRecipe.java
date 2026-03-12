@@ -31,7 +31,7 @@ public class LogStrippingRecipe implements Recipe<SimpleContainer> {
         if (pLevel.isClientSide()) {
             return false;
         }
-        return inputItems.get(0).test(pContainer.getItem(LogStripperBlockEntity.INPUT_SLOT));
+        return inputItems.get(0).test(pContainer.getItem(LogStripperBlockEntity.INPUT_SLOT_INDEX));
     }
 
     @Override

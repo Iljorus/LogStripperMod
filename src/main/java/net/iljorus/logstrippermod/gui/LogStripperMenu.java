@@ -42,10 +42,10 @@ public class LogStripperMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
         this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(iItemHandler -> {
-            this.addSlot(new SlotItemHandler(iItemHandler, LogStripperBlockEntity.INPUT_SLOT, GuiConstants.INPUT_SLOT_X, GuiConstants.INPUT_SLOT_Y));
-            this.addSlot(new OutPutSlotItemHandler(iItemHandler, LogStripperBlockEntity.OUTPUT_SLOT, GuiConstants.OUTPUT_SLOT_X, GuiConstants.OUTPUT_SLOT_Y));
+            this.addSlot(new SlotItemHandler(iItemHandler, LogStripperBlockEntity.INPUT_SLOT_INDEX, GuiConstants.INPUT_SLOT_X, GuiConstants.INPUT_SLOT_Y));
+            this.addSlot(new OutPutSlotItemHandler(iItemHandler, LogStripperBlockEntity.OUTPUT_SLOT_INDEX, GuiConstants.OUTPUT_SLOT_X, GuiConstants.OUTPUT_SLOT_Y));
             if (BaseConfig.COMMON.AXE_SLOT.get()) {
-                this.addSlot(new SpecialSlotItemHandler(iItemHandler, LogStripperBlockEntity.AXE_SLOT, GuiConstants.AXE_SLOT_X, GuiConstants.AXE_SLOT_Y));
+                this.addSlot(new SpecialSlotItemHandler(iItemHandler, LogStripperBlockEntity.AXE_SLOT_INDEX, GuiConstants.AXE_SLOT_X, GuiConstants.AXE_SLOT_Y));
             }
         });
         addDataSlots(data);

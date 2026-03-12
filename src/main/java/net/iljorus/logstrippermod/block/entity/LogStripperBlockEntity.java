@@ -44,30 +44,30 @@ import java.util.Optional;
  *Handles the functionality of the machine
  * */
 public class LogStripperBlockEntity extends BlockEntity implements MenuProvider {
-    protected InputItemHandler inputSlot = new InputItemHandler(INPUT_SLOT) {
+    protected InputItemHandler inputSlot = new InputItemHandler(INPUT_SLOT_INDEX) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
             setChanged();
         }
     };
-    protected OutputItemHandler outputSlot = new OutputItemHandler(OUTPUT_SLOT) {
+    protected OutputItemHandler outputSlot = new OutputItemHandler(OUTPUT_SLOT_INDEX) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
             setChanged();
         }
     };
-    protected SpecialItemHandler axeSlot = new SpecialItemHandler(AXE_SLOT) {
+    protected SpecialItemHandler axeSlot = new SpecialItemHandler(AXE_SLOT_INDEX) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
             setChanged();
         }
     };
-    public static final int INPUT_SLOT = 0;
-    public static final int OUTPUT_SLOT = 1;
-    public static final int AXE_SLOT = 2;
+    public static final int INPUT_SLOT_INDEX = 0;
+    public static final int OUTPUT_SLOT_INDEX = 1;
+    public static final int AXE_SLOT_INDEX = 2;
     private LazyOptional<IItemHandler> inputAndAxeLazyOptional = LazyOptional.empty();
     private LazyOptional<IItemHandler> outputLazyOptional = LazyOptional.empty();
     private LazyOptional<IItemHandler> inputAndOutputAndAxeLazyOptional = LazyOptional.empty();
@@ -189,9 +189,9 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
 
     public void drops() {
         SimpleContainer inventory = new SimpleContainer(3);
-        inventory.setItem(INPUT_SLOT, inputSlot.getStack());
-        inventory.setItem(OUTPUT_SLOT, outputSlot.getStack());
-        inventory.setItem(AXE_SLOT, axeSlot.getStack());
+        inventory.setItem(INPUT_SLOT_INDEX, inputSlot.getStack());
+        inventory.setItem(OUTPUT_SLOT_INDEX, outputSlot.getStack());
+        inventory.setItem(AXE_SLOT_INDEX, axeSlot.getStack());
 
         Containers.dropContents(this.level, this.worldPosition, inventory);
     }
@@ -233,13 +233,13 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             CompoundTag itemTags = tagList.getCompound(i);
             int slot = itemTags.getInt("Slot");
 
-            if (slot == INPUT_SLOT) {
+            if (slot == INPUT_SLOT_INDEX) {
                 this.inputSlot.deserializeNBT(itemTags);
             }
-            if (slot == OUTPUT_SLOT) {
+            if (slot == OUTPUT_SLOT_INDEX) {
                 this.outputSlot.deserializeNBT(itemTags);
             }
-            if (slot == AXE_SLOT) {
+            if (slot == AXE_SLOT_INDEX) {
                 this.axeSlot.deserializeNBT(itemTags);
             }
         }
@@ -334,7 +334,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
 
     private Optional<LogStrippingRecipe> fetchRecipe() {
         SimpleContainer inventory = new SimpleContainer(2);
-        inventory.setItem(INPUT_SLOT, inputSlot.getStackInSlot(0));
+        inventory.setItem(INPUT_SLOT_INDEX, inputSlot.getStackInSlot(0));
         return this.level.getRecipeManager().getRecipeFor(LogStrippingRecipe.Type.INSTANCE, inventory, level);
     }
 

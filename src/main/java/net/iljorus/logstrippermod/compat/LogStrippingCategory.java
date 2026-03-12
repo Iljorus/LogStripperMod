@@ -87,7 +87,7 @@ public class LogStrippingCategory implements IRecipeCategory<LogStrippingRecipe>
     public void draw(@NotNull LogStrippingRecipe recipe, @NotNull IRecipeSlotsView recipeSlotsView, @NotNull GuiGraphics guiGraphics, double mouseX, double mouseY) {
         progressBackground.draw(guiGraphics, GuiConstants.PROGRESS_ICON_X - 10, GuiConstants.PROGRESS_ICON_Y - 11);
         progress.draw(guiGraphics, GuiConstants.PROGRESS_ICON_X - 10, GuiConstants.PROGRESS_ICON_Y - 11);
-        slots.get(LogStripperBlockEntity.INPUT_SLOT).draw(guiGraphics, GuiConstants.INPUT_SLOT_X - 11, GuiConstants.INPUT_SLOT_Y - 12);
-        slots.get(LogStripperBlockEntity.OUTPUT_SLOT).draw(guiGraphics, GuiConstants.OUTPUT_SLOT_X - 11, GuiConstants.OUTPUT_SLOT_Y - 12);
+        slots.get(LogStripperBlockEntity.INPUT_SLOT_INDEX).draw(guiGraphics, GuiConstants.INPUT_SLOT_X - 11, GuiConstants.INPUT_SLOT_Y - 12);
+        slots.get(LogStripperBlockEntity.OUTPUT_SLOT_INDEX).draw(guiGraphics, GuiConstants.OUTPUT_SLOT_X - 11, GuiConstants.OUTPUT_SLOT_Y - 12);
     }
 }
