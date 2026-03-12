@@ -262,7 +262,6 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             if (progressFinished()) {
                 craftItem();
                 resetProgress();
-                transferItems();
             }
             setChanged();
         } else {
@@ -271,9 +270,10 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             } else {
                 resetProgress();
             }
-            if (Utils.updateRateNormal()) {
-                transferItems();
-            }
+
+        }
+        if (Utils.updateRateNormal()) {
+            transferItems();
         }
     }
 
