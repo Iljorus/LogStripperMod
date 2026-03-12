@@ -1,9 +1,7 @@
 package net.iljorus.logstrippermod.network.packet;
 
-import net.iljorus.logstrippermod.block.entity.LogStripperBlockEntity;
 import net.iljorus.logstrippermod.block.entity.config.RedstoneConfig;
 import net.iljorus.logstrippermod.gui.LogStripperMenu;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,19 +9,19 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public record RedstoneConfigPacket(int payload, BlockPos blockPos) {
+public record RedstoneConfigPacket(BlockPos blockPos, int payload) {
 
-    public RedstoneConfigPacket(RedstoneConfig config, BlockPos pos) {
-        this(config.getIntValue(), pos);
+    public RedstoneConfigPacket(BlockPos pos, RedstoneConfig config) {
+        this(pos, config.getIntValue());
     }
 
     public void encode(FriendlyByteBuf buf) {
-        buf.writeInt(payload);
         buf.writeBlockPos(blockPos);
+        buf.writeInt(payload);
     }
 
     public static RedstoneConfigPacket decode(FriendlyByteBuf buf) {
-        return new RedstoneConfigPacket(buf.readInt(), buf.readBlockPos());
+        return new RedstoneConfigPacket(buf.readBlockPos(), buf.readInt());
     }
 
     public static void handle(RedstoneConfigPacket packet, Supplier<NetworkEvent.Context> context) {
