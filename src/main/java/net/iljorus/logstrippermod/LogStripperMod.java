@@ -7,7 +7,6 @@ import net.iljorus.logstrippermod.config.BaseConfig;
 import net.iljorus.logstrippermod.gui.LogStripperScreen;
 import net.iljorus.logstrippermod.gui.ModMenuTypes;
 import net.iljorus.logstrippermod.item.ModItems;
-import net.iljorus.logstrippermod.network.ModPacketHandler;
 import net.iljorus.logstrippermod.recipe.ModRecipes;
 import net.iljorus.logstrippermod.util.Utils;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -19,7 +18,6 @@ import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
@@ -65,9 +63,5 @@ public class LogStripperMod {
 
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class CoreModEvents {
-        @SubscribeEvent
-        public static void networkSetup(FMLCommonSetupEvent event) {
-            event.enqueueWork(ModPacketHandler::register);
-        }
     }
 }

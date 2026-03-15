@@ -1,13 +1,11 @@
 package net.iljorus.logstrippermod.block.entity;
 
-import net.iljorus.logstrippermod.block.entity.config.RedstoneConfig;
 import net.iljorus.logstrippermod.config.BaseConfig;
 import net.iljorus.logstrippermod.gui.LogStripperMenu;
 import net.iljorus.logstrippermod.inventory.InputItemHandler;
 import net.iljorus.logstrippermod.inventory.OutputItemHandler;
 import net.iljorus.logstrippermod.inventory.SpecialItemHandler;
 import net.iljorus.logstrippermod.recipe.LogStrippingRecipe;
-import net.iljorus.logstrippermod.util.Utils;
 import net.iljorus.logstrippermod.util.helpers.InventoryHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,8 +34,6 @@ import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /*
@@ -75,56 +71,15 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     private final ContainerData data;
     private int progress = 0;
     private int maxProgress = BaseConfig.COMMON.DURATION.get();
-    private final List<SimplePair<Direction, IItemHandler>> pullConfiguration = new ArrayList<>(6);
-    private final List<SimplePair<Direction, IItemHandler>> pushConfiguration = new ArrayList<>(6);
-
-    public static class SimplePair<L, R> {
-        private L l;
-        private R r;
-
-        public SimplePair(L l, R r) {
-            this.l = l;
-            this.r = r;
-        }
-
-        public L getDirection() {
-            return l;
-        }
-
-        public R getIItemHandler() {
-            return r;
-        }
-
-        public void setDirection(L l) {
-            this.l = l;
-        }
-
-        public void setIItemHandler(R r) {
-            this.r = r;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            SimplePair<?, ?> that = (SimplePair<?, ?>) o;
-            return Objects.equals(l, that.l) && Objects.equals(r, that.r);
-        }
-    }
 
     public LogStripperBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntity.MACHINE_LOG_STRIPPER_BLOCK_ENTITY.get(), pPos, pBlockState);
-        pushConfiguration.add(new SimplePair<>(Direction.UP, this.outputSlot));
-        pullConfiguration.add(new SimplePair<>(Direction.WEST, this.inputSlot));
-        pullConfiguration.add(new SimplePair<>(Direction.WEST, this.axeSlot));
-        redstoneConfig = RedstoneConfig.NONE;
         this.data = new ContainerData() {
             @Override
             public int get(int pIndex) {
                 return switch (pIndex) {
                     case 0 -> LogStripperBlockEntity.this.progress;
                     case 1 -> LogStripperBlockEntity.this.maxProgress;
-                    case 2 -> LogStripperBlockEntity.this.redstoneConfig.getIntValue();
                     default -> 0;
                 };
             }
@@ -134,13 +89,12 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
                 switch (pIndex) {
                     case 0 -> LogStripperBlockEntity.this.progress = pValue;
                     case 1 -> LogStripperBlockEntity.this.maxProgress = pValue;
-                    case 2 -> LogStripperBlockEntity.this.redstoneConfig = RedstoneConfig.fromIntValue(pValue);
                 }
             }
 
             @Override
             public int getCount() {
-                return 3;
+                return 2;
             }
         };
     }
@@ -221,7 +175,6 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         pTag.put("inventory", nbt);
         pTag.putInt("machine_log_stripper_block.progress", progress);
 
-        pTag.putInt("machine_log_stripper_block.redstone_config", redstoneConfig.getIntValue());
         super.saveAdditional(pTag);
     }
 
@@ -244,7 +197,6 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             }
         }
         progress = pTag.getInt("machine_log_stripper_block.progress");
-        redstoneConfig = RedstoneConfig.fromIntValue(pTag.getInt("machine_log_stripper_block.redstone_config"));
     }
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
@@ -252,7 +204,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             InventoryHelper.pushToAdjacent(this, this.axeSlot, 1, Direction.UP);
         }
 
-        if (redstoneControlIsActive() && hasRecipe()) {
+        if (!isPowered() && hasRecipe()) {
             if (!BaseConfig.COMMON.AXE_SLOT.get() || !getAxe().isEmpty()) {
                 increaseProgress();
             } else {
@@ -265,15 +217,12 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
             }
             setChanged();
         } else {
-            if (!redstoneControlIsActive()) {
+            if (isPowered()) {
                 decreaseProgress();
             } else {
                 resetProgress();
             }
 
-        }
-        if (Utils.updateRateNormal()) {
-            transferItems();
         }
     }
 
@@ -350,39 +299,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         return this.axeSlot.getStackInSlot(0);
     }
 
-    private void transferItems() {
-        sideConfiguration.forEach(tripple -> {
-            IItemHandler itemHandler = tripple.getIItemHandler();
-            Action action = tripple.getAction();
-            switch (action) {
-                case PUSH ->
-                        InventoryHelper.pushToAdjacent(this, itemHandler, itemHandler.getStackInSlot(0).getCount(), tripple.getDirection());
-                case PULL ->
-                        InventoryHelper.pullFromAdjacent(this, itemHandler, itemHandler.getSlotLimit(0) - itemHandler.getStackInSlot(0).getCount(), tripple.getDirection());
-                case BOTH -> {
-                    InventoryHelper.pushToAdjacent(this, itemHandler, itemHandler.getStackInSlot(0).getCount(), tripple.getDirection());
-                    InventoryHelper.pullFromAdjacent(this, itemHandler, itemHandler.getSlotLimit(0) - itemHandler.getStackInSlot(0).getCount(), tripple.getDirection());
-                }
-            }
-        });
-    }
-
     private boolean isPowered() {
         return this.level.hasNeighborSignal(this.getBlockPos());
-    }
-
-    private boolean redstoneControlIsActive() {
-        if (redstoneConfig.equals(RedstoneConfig.LOW)) {
-            return !isPowered();
-        } else if (redstoneConfig.equals(RedstoneConfig.HIGH)) {
-            return isPowered();
-        }
-        //This includes RedstoneConfig.NONE
-        return true;
-    }
-
-    public void setRedstoneConfig(RedstoneConfig config) {
-        this.redstoneConfig = config;
-        this.setChanged();
     }
 }

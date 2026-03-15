@@ -5,7 +5,6 @@ import net.iljorus.logstrippermod.LogStripperMod;
 import net.iljorus.logstrippermod.config.BaseConfig;
 import net.iljorus.logstrippermod.gui.element.DurabilityIndicatorElement;
 import net.iljorus.logstrippermod.gui.element.ElementBase;
-import net.iljorus.logstrippermod.gui.element.RedstoneControlElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -45,7 +44,6 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         super.init();
         this.titleLabelX = 31; //35
         elements.add(new DurabilityIndicatorElement(leftPos + 8, topPos + 8, 16, 42, menu));
-        elements.add(new RedstoneControlElement(leftPos + 117, topPos + 65, 14, 14, menu));
     }
 
     @Override
@@ -80,7 +78,6 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         }
 
         renderProgressIcon(guiGraphics, x, y);
-        renderRedstoneControls(guiGraphics, x, y);
     }
 
     public void renderBaseTexture(GuiGraphics guiGraphics, int x, int y) {
@@ -100,12 +97,6 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         int scaledAxeDurability = menu.getScaledAxeDurability();
         guiGraphics.blit(DURABILITY_INDICATOR, x + 8, y + 8, 1, 0, 0, 16, 42, 256, 256);
         guiGraphics.blit(DURABILITY_INDICATOR, x + 8, y + 8 + (42 - scaledAxeDurability), 2, 16, 42 - scaledAxeDurability, 16, scaledAxeDurability, 256, 256);
-    }
-
-    public void renderRedstoneControls(GuiGraphics guiGraphics, int x, int y) {
-        int pUOffset = this.menu.getRedstoneConfig().getIntValue() * 14;
-        int pVOffset = 0;
-        guiGraphics.blit(REDSTONE_BUTTONS, x + 117, y + 65, 2, pUOffset, pVOffset, 14, 14, 256, 256);
     }
 
     @Override

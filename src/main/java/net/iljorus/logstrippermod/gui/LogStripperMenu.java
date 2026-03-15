@@ -2,7 +2,6 @@ package net.iljorus.logstrippermod.gui;
 
 import net.iljorus.logstrippermod.block.ModBlocks;
 import net.iljorus.logstrippermod.block.entity.LogStripperBlockEntity;
-import net.iljorus.logstrippermod.block.entity.config.RedstoneConfig;
 import net.iljorus.logstrippermod.config.BaseConfig;
 import net.iljorus.logstrippermod.inventory.slot.OutPutSlotItemHandler;
 import net.iljorus.logstrippermod.inventory.slot.SpecialSlotItemHandler;
@@ -18,6 +17,8 @@ import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
+
+import static net.iljorus.logstrippermod.block.entity.LogStripperBlockEntity.AXE_SLOT_INDEX;
 
 /*
  * Called when player opens the TE-Inventory.
@@ -80,14 +81,6 @@ public class LogStripperMenu extends AbstractContainerMenu {
         return maxDurability != 0 ? scaleSize * durability / maxDurability : 0;
     }
 
-    public RedstoneConfig getRedstoneConfig() {
-        return RedstoneConfig.fromIntValue(this.data.get(2));
-    }
-
-    public void setRedstoneConfig(RedstoneConfig config) {
-        this.data.set(2, config.getIntValue());
-    }
-
     // must assign a slot number to each of the slots used by the GUI.
     // For this container, we can see both the tile inventory's slots and the player inventory slots and the hotbar.
     // Each time we add a Slot to the container, it automatically increases the slotIndex, which means
@@ -101,7 +94,6 @@ public class LogStripperMenu extends AbstractContainerMenu {
     private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
-    //Number of Slots in Tile Entity
     private static final int TE_INVENTORY_SLOT_COUNT = BaseConfig.COMMON.AXE_SLOT.get() ? 3 : 2;
 
     @Override
@@ -113,17 +105,16 @@ public class LogStripperMenu extends AbstractContainerMenu {
         ItemStack sourceStack = sourceSlot.getItem();
         ItemStack copyOfSourceStack = sourceStack.copy();
 
-        // Check if the slot clicked is one of the vanilla container slots
-        if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
+        if (pIndex < TE_INVENTORY_FIRST_SLOT_INDEX) {
             // This is a vanilla container slot so merge the stack into the tile inventory
             //Prioritizing Axe slot if moving axe-like item
             if (sourceStack.getItem().canPerformAction(Items.OAK_LOG.getDefaultInstance(), ToolActions.AXE_STRIP)) {
-                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 2, TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT, false)) {
+                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + AXE_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX + AXE_SLOT_INDEX + 1, false)) {
                     return ItemStack.EMPTY;
                 }
             }
-            if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX
-                    + TE_INVENTORY_SLOT_COUNT, false)) {
+            if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
+                    TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT, false)) {
                 return ItemStack.EMPTY;
             }
         } else if (pIndex < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
