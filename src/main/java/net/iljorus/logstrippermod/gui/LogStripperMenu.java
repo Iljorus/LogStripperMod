@@ -27,7 +27,7 @@ import static net.iljorus.logstrippermod.block.entity.LogStripperBlockEntity.AXE
 public class LogStripperMenu extends AbstractContainerMenu {
     public final LogStripperBlockEntity blockEntity;
     private final Level level;
-    //Defined in LogStripperBlockEntity class, [0]=progress, [1]=maxProgress, [2]=redstoneConfig
+    //Defined in LogStripperBlockEntity class, [0]=progress, [1]=maxProgress
     private final ContainerData data;
 
     public LogStripperMenu(int pContainerId, Inventory inv, FriendlyByteBuf extraData) {
