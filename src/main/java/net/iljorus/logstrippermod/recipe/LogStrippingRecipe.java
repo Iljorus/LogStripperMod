@@ -13,6 +13,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LogStrippingRecipe implements Recipe<SimpleContainer> {
@@ -27,7 +28,7 @@ public class LogStrippingRecipe implements Recipe<SimpleContainer> {
     }
 
     @Override
-    public boolean matches(SimpleContainer pContainer, Level pLevel) {
+    public boolean matches(@NotNull SimpleContainer pContainer, Level pLevel) {
         if (pLevel.isClientSide()) {
             return false;
         }
@@ -35,7 +36,7 @@ public class LogStrippingRecipe implements Recipe<SimpleContainer> {
     }
 
     @Override
-    public ItemStack assemble(SimpleContainer pContainer, RegistryAccess pRegistryAccess) {
+    public @NotNull ItemStack assemble(@NotNull SimpleContainer pContainer, @NotNull RegistryAccess pRegistryAccess) {
         return output.copy();
     }
 
@@ -45,28 +46,28 @@ public class LogStrippingRecipe implements Recipe<SimpleContainer> {
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess pRegistryAccess) {
+    public @NotNull ItemStack getResultItem(@NotNull RegistryAccess pRegistryAccess) {
         return output.copy();
     }
 
     @Override
-    public NonNullList<Ingredient> getIngredients() {
+    public @NotNull NonNullList<Ingredient> getIngredients() {
         return inputItems;
     }
 
     //getId
     @Override
-    public ResourceLocation m_6423_() {
+    public @NotNull ResourceLocation m_6423_() {
         return id;
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public @NotNull RecipeSerializer<?> getSerializer() {
         return Serializer.INSTANCE;
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public @NotNull RecipeType<?> getType() {
         return Type.INSTANCE;
     }
 
@@ -82,7 +83,7 @@ public class LogStrippingRecipe implements Recipe<SimpleContainer> {
 
         //fromJson, pRecipeId, pSerializedRecipe
         @Override
-        public LogStrippingRecipe m_6729_(ResourceLocation p_44103_, JsonObject p_44104_) {
+        public @NotNull LogStrippingRecipe m_6729_(@NotNull ResourceLocation p_44103_, @NotNull JsonObject p_44104_) {
             //ItemStackFromJson
             ItemStack output = ShapedRecipe.m_151274_(GsonHelper.getAsJsonObject(p_44104_, "result"));
 
@@ -99,7 +100,7 @@ public class LogStrippingRecipe implements Recipe<SimpleContainer> {
 
         //pRecipeId
         @Override
-        public @Nullable LogStrippingRecipe fromNetwork(ResourceLocation p_44105_, FriendlyByteBuf pBuffer) {
+        public @Nullable LogStrippingRecipe fromNetwork(@NotNull ResourceLocation p_44105_, FriendlyByteBuf pBuffer) {
             NonNullList<Ingredient> inputs = NonNullList.withSize(pBuffer.readInt(), Ingredient.EMPTY);
 
             inputs.replaceAll(index -> Ingredient.fromNetwork(pBuffer));

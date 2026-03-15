@@ -15,13 +15,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 @JeiPlugin
 public class JEILogStripperModPlugin implements IModPlugin {
     @Override
-    public ResourceLocation getPluginUid() {
+    public @NotNull ResourceLocation getPluginUid() {
         return ResourceLocation.fromNamespaceAndPath(LogStripperMod.MOD_ID, "jei_plugin");
     }
 
