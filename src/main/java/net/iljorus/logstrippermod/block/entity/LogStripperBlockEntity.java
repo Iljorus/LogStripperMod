@@ -204,10 +204,11 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
         if (BaseConfig.COMMON.AXE_SLOT.get() && shouldPreserveAxe()) {
-            //TODO
-        }
-
-        if (!isPowered() && hasRecipe()) {
+            //TODO print some sort of msg or draw red X over/under progress icon, perhaps add icon to toggle this behaviour
+            decreaseProgress();
+        } else if (isPowered()) {
+            decreaseProgress();
+        } else if (!isPowered() && hasRecipe()) {
             if (!BaseConfig.COMMON.AXE_SLOT.get() || !getAxe().isEmpty()) {
                 increaseProgress();
             } else {
@@ -218,15 +219,10 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
                 craftItem();
                 resetProgress();
             }
-            setChanged();
         } else {
-            if (isPowered()) {
-                decreaseProgress();
-            } else {
-                resetProgress();
-            }
-
+            resetProgress();
         }
+        setChanged();
     }
 
     private void resetProgress() {
