@@ -15,7 +15,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-import static net.iljorus.logstrippermod.gui.GuiConstants.*;
+import static net.iljorus.logstrippermod.gui.GuiConstants.AXE_SLOT_X;
+import static net.iljorus.logstrippermod.gui.GuiConstants.AXE_SLOT_Y;
 
 /*
  * Handles Texture & GUI design.

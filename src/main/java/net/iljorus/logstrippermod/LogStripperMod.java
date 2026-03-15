@@ -14,7 +14,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -26,12 +25,10 @@ public class LogStripperMod {
     public static final String MOD_ID = "logstrippermod";
 
     public static IEventBus modEventBus;
-    public static ModContainer modContainer;
     private final Logger LOGGER = LogUtils.getLogger();
 
     public LogStripperMod(FMLJavaModLoadingContext context) {
         modEventBus = context.getModEventBus();
-        modContainer = context.getContainer();
 
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);

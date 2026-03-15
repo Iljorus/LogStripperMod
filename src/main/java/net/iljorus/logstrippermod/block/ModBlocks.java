@@ -26,15 +26,6 @@ public class ModBlocks {
     public static final RegistryObject<Block> MACHINE_LOG_STRIPPER = registerAsBlockAndItem("machine_log_stripper_block",
             () -> new LogStripperBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).requiresCorrectToolForDrops().noOcclusion().destroyTime(2.5F)));
 
-    private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
-        RegistryObject<T> toReturn = BLOCKS.register(name, block);
-        registerBlockAsItem(name, toReturn);
-        return toReturn;
-    }
-
-    private static <T extends Block> RegistryObject<Item> registerBlockAsItem(String name, RegistryObject<T> block) {
-        return ModItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
-    }
 
     private static <T extends Block> RegistryObject<T> registerAsBlockAndItem(String name, Supplier<T> supplier) {
         RegistryObject<T> block = BLOCKS.register(name, supplier);

@@ -79,7 +79,7 @@ public class LogStrippingCategory implements IRecipeCategory<LogStrippingRecipe>
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, LogStrippingRecipe recipe, @NotNull IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, GuiConstants.INPUT_SLOT_X - 10, GuiConstants.INPUT_SLOT_Y - 11).addIngredients(recipe.getIngredients().getFirst());
+        builder.addSlot(RecipeIngredientRole.INPUT, GuiConstants.INPUT_SLOT_X - 10, GuiConstants.INPUT_SLOT_Y - 11).addIngredients(recipe.getIngredients().get(0));
         builder.addSlot(RecipeIngredientRole.OUTPUT, GuiConstants.OUTPUT_SLOT_X - 10, GuiConstants.OUTPUT_SLOT_Y - 11).addItemStack(recipe.getResultItem(null));
     }
 
