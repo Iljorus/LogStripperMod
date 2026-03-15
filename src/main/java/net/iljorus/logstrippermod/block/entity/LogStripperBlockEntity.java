@@ -201,7 +201,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
         if (BaseConfig.COMMON.AXE_SLOT.get() && shouldPreserveAxe()) {
-            InventoryHelper.pushToAdjacent(this, this.axeSlot, 1, Direction.UP);
+            //TODO
         }
 
         if (!isPowered() && hasRecipe()) {
