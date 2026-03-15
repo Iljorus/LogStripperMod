@@ -31,7 +31,7 @@ public class LogStrippingRecipe implements Recipe<SimpleContainer> {
         if (pLevel.isClientSide()) {
             return false;
         }
-        return inputItems.get(0).test(pContainer.getItem(LogStripperBlockEntity.INPUT_SLOT_INDEX));
+        return inputItems.getFirst().test(pContainer.getItem(LogStripperBlockEntity.INPUT_SLOT_INDEX));
     }
 
     @Override
@@ -102,9 +102,7 @@ public class LogStrippingRecipe implements Recipe<SimpleContainer> {
         public @Nullable LogStrippingRecipe fromNetwork(ResourceLocation p_44105_, FriendlyByteBuf pBuffer) {
             NonNullList<Ingredient> inputs = NonNullList.withSize(pBuffer.readInt(), Ingredient.EMPTY);
 
-            for (int i = 0; i < inputs.size(); i++) {
-                inputs.set(i, Ingredient.fromNetwork(pBuffer));
-            }
+            inputs.replaceAll(index -> Ingredient.fromNetwork(pBuffer));
 
             ItemStack output = pBuffer.readItem();
             return new LogStrippingRecipe(inputs, output, p_44105_);

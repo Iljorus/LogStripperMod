@@ -6,7 +6,6 @@ import net.iljorus.logstrippermod.inventory.InputItemHandler;
 import net.iljorus.logstrippermod.inventory.OutputItemHandler;
 import net.iljorus.logstrippermod.inventory.SpecialItemHandler;
 import net.iljorus.logstrippermod.recipe.LogStrippingRecipe;
-import net.iljorus.logstrippermod.util.helpers.InventoryHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -233,7 +232,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     private void craftItem() {
         Optional<LogStrippingRecipe> recipe = fetchRecipe();
         ItemStack result = recipe.get().getResultItem(getLevel().registryAccess());
-        int batch_size = recipe.get().getIngredients().get(0).getItems()[0].getCount();
+        int batch_size = recipe.get().getIngredients().getFirst().getItems()[0].getCount();
 
         if (BaseConfig.COMMON.AXE_SLOT.get()) {
             hurtAxe();
