@@ -13,8 +13,6 @@ import net.iljorus.logstrippermod.util.Utils;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModContainer;
@@ -34,9 +32,6 @@ public class LogStripperMod {
     private final Logger LOGGER = LogUtils.getLogger();
 
     public LogStripperMod(FMLJavaModLoadingContext context) {
-        //LogStripperMod.modEventBus = modEventBus;         IEventBus modEventBus, ModContainer modContainer
-        //LogStripperMod.modContainer = modContainer;
-
         modEventBus = context.getModEventBus();
         modContainer = context.getContainer();
 
@@ -47,7 +42,6 @@ public class LogStripperMod {
         ModMenuTypes.register(modEventBus);
         ModRecipes.register(modEventBus);
 
-        //Register Config
         context.registerConfig(ModConfig.Type.COMMON, BaseConfig.COMMON_SPEC);
     }
 
@@ -66,15 +60,6 @@ public class LogStripperMod {
             if (event.phase == TickEvent.Phase.START) {
                 Utils.tickTime();
             }
-        }
-
-        @SubscribeEvent
-        public static void onServerStarted(ServerStartedEvent event) {
-
-        }
-
-        @SubscribeEvent
-        public static void loadEvent(LevelEvent.Load event) {
         }
     }
 
