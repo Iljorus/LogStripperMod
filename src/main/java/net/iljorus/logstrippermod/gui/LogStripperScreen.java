@@ -55,39 +55,35 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
     }
 
     /*
+     * Renders the GUI
+     * */
+    @Override
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        super.render(guiGraphics, mouseX, mouseY, delta);
+        renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    /*
      * Sub-Method to render Background, called in super.render()
      * */
     @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+        renderBackground(guiGraphics);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int x = leftPos;
         int y = topPos;
 
-        renderBase(guiGraphics, x, y);
+        renderBaseTexture(guiGraphics, x, y);
         if (BaseConfig.COMMON.AXE_SLOT.get()) {
-            renderAxeSlot(guiGraphics, x, y);
-            renderAxeDurability(guiGraphics, x, y);
+            renderAxeTextures(guiGraphics, x, y);
         }
 
         renderProgressIcon(guiGraphics, x, y);
         renderRedstoneControls(guiGraphics, x, y);
     }
 
-    /*
-     * Renders the Gui
-     * */
-    @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-        renderBackground(guiGraphics);
-        super.render(guiGraphics, mouseX, mouseY, delta);
-        renderTooltip(guiGraphics, mouseX, mouseY);
-        if (this.menu.getCarried().isEmpty()) {
-            drawTooltips(guiGraphics, mouseX, mouseY);
-        }
-    }
-
-    public void renderBase(GuiGraphics guiGraphics, int x, int y) {
+    public void renderBaseTexture(GuiGraphics guiGraphics, int x, int y) {
         RenderSystem.setShaderTexture(0, LOG_STRIPPER_BASE);
         guiGraphics.blit(LOG_STRIPPER_BASE, x, y, 0, 0, 0, imageWidth, imageHeight, 256, 256);
     }
@@ -99,12 +95,8 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         }
     }
 
-    private void renderAxeSlot(GuiGraphics guiGraphics, int x, int y) {
+    private void renderAxeTextures(GuiGraphics guiGraphics, int x, int y) {
         guiGraphics.blit(AXE_SLOT, x + AXE_SLOT_X - 1, y + AXE_SLOT_Y - 1, 1, 0, 0, 18, 18, 256, 256);
-
-    }
-
-    private void renderAxeDurability(GuiGraphics guiGraphics, int x, int y) {
         int scaledAxeDurability = menu.getScaledAxeDurability();
         guiGraphics.blit(DURABILITY_INDICATOR, x + 8, y + 8, 1, 0, 0, 16, 42, 256, 256);
         guiGraphics.blit(DURABILITY_INDICATOR, x + 8, y + 8 + (42 - scaledAxeDurability), 2, 16, 42 - scaledAxeDurability, 16, scaledAxeDurability, 256, 256);
@@ -116,12 +108,16 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         guiGraphics.blit(REDSTONE_BUTTONS, x + 117, y + 65, 2, pUOffset, pVOffset, 14, 14, 256, 256);
     }
 
-    private void drawTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        ElementBase el = getElementAtPosition(mouseX, mouseY);
-        if (el == null) {
-            return;
+    @Override
+    protected void renderTooltip(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        super.renderTooltip(guiGraphics, mouseX, mouseY);
+        if (this.menu.getCarried().isEmpty()) {
+            ElementBase el = getElementAtPosition(mouseX, mouseY);
+            if (el == null) {
+                return;
+            }
+            guiGraphics.renderTooltip(font, el.getTooltip(), mouseX, mouseY);
         }
-        guiGraphics.renderTooltip(font, el.getTooltip(), mouseX, mouseY);
     }
 
     private ElementBase getElementAtPosition(double mouseX, double mouseY) {
