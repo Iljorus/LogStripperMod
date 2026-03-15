@@ -1,5 +1,6 @@
 package net.iljorus.logstrippermod.block.entity;
 
+import com.mojang.logging.LogUtils;
 import net.iljorus.logstrippermod.config.BaseConfig;
 import net.iljorus.logstrippermod.gui.LogStripperMenu;
 import net.iljorus.logstrippermod.inventory.InputItemHandler;
@@ -146,6 +147,9 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         inventory.setItem(OUTPUT_SLOT_INDEX, outputSlot.getStack());
         inventory.setItem(AXE_SLOT_INDEX, axeSlot.getStack());
 
+        if(level == null){
+            LogUtils.getLogger().error("Level is null");
+        }
         Containers.dropContents(this.level, this.worldPosition, inventory);
     }
 
@@ -230,17 +234,19 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     private void craftItem() {
-        Optional<LogStrippingRecipe> recipe = fetchRecipe();
-        ItemStack result = recipe.get().getResultItem(getLevel().registryAccess());
-        int batch_size = recipe.get().getIngredients().getFirst().getItems()[0].getCount();
-
-        if (BaseConfig.COMMON.AXE_SLOT.get()) {
-            hurtAxe();
-        }
-
-        this.inputSlot.extractItem(0, batch_size, false);
-        this.outputSlot.setStackInSlot(0, new ItemStack(result.getItem(),
-                this.outputSlot.getStackInSlot(0).getCount() + result.getCount()));
+        fetchRecipe().ifPresentOrElse((recipe) -> {
+                    if (level == null) {
+                        LogUtils.getLogger().error("Level is null");
+                    }
+                    ItemStack result = recipe.getResultItem(level.registryAccess());
+                    if (BaseConfig.COMMON.AXE_SLOT.get()) {
+                        hurtAxe();
+                    }
+                    this.inputSlot.extractItem(0, 1, false);
+                    this.outputSlot.setStackInSlot(0, new ItemStack(result.getItem(),
+                            this.outputSlot.getStackInSlot(0).getCount() + result.getCount()));
+                },
+                () -> LogUtils.getLogger().error("No recipe found at end of crafting cycle"));
     }
 
     private boolean progressFinished() {
@@ -262,7 +268,10 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         if (recipe.isEmpty()) {
             return false;
         }
-        ItemStack result = recipe.get().getResultItem(getLevel().registryAccess());
+        if (level == null) {
+            return false;
+        }
+        ItemStack result = recipe.get().getResultItem(level.registryAccess());
         return canOutputAmount(result.getCount()) && canOutputItem(result.getItem());
     }
 
@@ -283,6 +292,9 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     private Optional<LogStrippingRecipe> fetchRecipe() {
         SimpleContainer inventory = new SimpleContainer(2);
         inventory.setItem(INPUT_SLOT_INDEX, inputSlot.getStackInSlot(0));
+        if (level == null) {
+            return Optional.empty();
+        }
         return this.level.getRecipeManager().getRecipeFor(LogStrippingRecipe.Type.INSTANCE, inventory, level);
     }
 
@@ -299,6 +311,9 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     private boolean isPowered() {
+        if (level == null) {
+            return false;
+        }
         return this.level.hasNeighborSignal(this.getBlockPos());
     }
 }
