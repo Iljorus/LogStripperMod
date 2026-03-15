@@ -23,15 +23,6 @@ public class ElementBase {
         return null;
     }
 
-    public void drawBackground() {
-    }
-
-    public void drawForeground() {
-    }
-
-    public void drawTooltip() {
-    }
-
     public boolean mouseClicked(double x, double y, int button) {
         return false;
     }
