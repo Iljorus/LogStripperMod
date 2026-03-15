@@ -6,6 +6,7 @@ import net.iljorus.logstrippermod.config.BaseConfig;
 import net.iljorus.logstrippermod.gui.element.DurabilityIndicatorElement;
 import net.iljorus.logstrippermod.gui.element.ElementBase;
 import net.iljorus.logstrippermod.gui.element.RedstoneControlElement;
+import net.iljorus.logstrippermod.gui.element.SideConfigControlElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -46,6 +47,7 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         this.titleLabelX = 31; //35
         elements.add(new DurabilityIndicatorElement(leftPos + 8, topPos + 8, 16, 42, menu));
         elements.add(new RedstoneControlElement(leftPos + 117, topPos + 65, 14, 14, menu));
+        elements.add(new SideConfigControlElement(leftPos + 117, topPos + 65, 14, 14, menu));
     }
 
     @Override
