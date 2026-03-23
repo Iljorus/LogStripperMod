@@ -105,8 +105,8 @@ public class LogStripperScreen extends AbstractContainerScreen<LogStripperMenu> 
         super.renderTooltip(guiGraphics, mouseX, mouseY);
         if (this.menu.getCarried().isEmpty()) {
             ElementBase el = getElementAtPosition(mouseX, mouseY);
-            if (el == null) {
-                return;
+            if (el != null) {
+                guiGraphics.renderTooltip(font, el.generateTooltip(), mouseX, mouseY);
             }
             guiGraphics.renderTooltip(font, el.getTooltip(), mouseX, mouseY);
         }

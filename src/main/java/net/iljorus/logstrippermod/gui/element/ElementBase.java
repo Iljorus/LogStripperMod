@@ -19,7 +19,7 @@ public class ElementBase {
         return mouseX >= this.posX && mouseX < this.posX + this.width && mouseY >= this.posY && mouseY < this.posY + this.height;
     }
 
-    public Component getTooltip() {
+    public Component generateTooltip() {
         return null;
     }
 
