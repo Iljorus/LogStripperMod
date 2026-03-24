@@ -36,7 +36,7 @@ public class LogStripperMenu extends AbstractContainerMenu {
 
     public LogStripperMenu(int pContainerId, Inventory inv, BlockEntity entity, ContainerData data) {
         super(ModMenuTypes.LOG_STRIPPER_MENU.get(), pContainerId);
-        checkContainerSize(inv, BaseConfig.COMMON.AXE_SLOT.get() ? 3 : 2);
+        checkContainerSize(inv, BaseConfig.axeSlotEnabled() ? 3 : 2);
         this.blockEntity = ((LogStripperBlockEntity) entity);
         this.level = inv.player.level();
         this.data = data;
@@ -45,7 +45,7 @@ public class LogStripperMenu extends AbstractContainerMenu {
         this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(iItemHandler -> {
             this.addSlot(new SlotItemHandler(iItemHandler, LogStripperBlockEntity.INPUT_SLOT_INDEX, GuiConstants.INPUT_SLOT_X, GuiConstants.INPUT_SLOT_Y));
             this.addSlot(new OutPutSlotItemHandler(iItemHandler, LogStripperBlockEntity.OUTPUT_SLOT_INDEX, GuiConstants.OUTPUT_SLOT_X, GuiConstants.OUTPUT_SLOT_Y));
-            if (BaseConfig.COMMON.AXE_SLOT.get()) {
+            if (BaseConfig.axeSlotEnabled()) {
                 this.addSlot(new SpecialSlotItemHandler(iItemHandler, LogStripperBlockEntity.AXE_SLOT_INDEX, GuiConstants.AXE_SLOT_X, GuiConstants.AXE_SLOT_Y));
             }
         });
@@ -93,7 +93,7 @@ public class LogStripperMenu extends AbstractContainerMenu {
     private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
-    private static final int TE_INVENTORY_SLOT_COUNT = BaseConfig.COMMON.AXE_SLOT.get() ? 3 : 2;
+    private static final int TE_INVENTORY_SLOT_COUNT = BaseConfig.axeSlotEnabled() ? 3 : 2;
 
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int pIndex) {  //TODO add axe support (supposed to go in slot two)

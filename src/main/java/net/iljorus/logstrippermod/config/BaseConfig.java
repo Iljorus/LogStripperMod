@@ -13,4 +13,8 @@ public class BaseConfig {
         COMMON = pair.getLeft();
         COMMON_SPEC = pair.getRight();
     }
+
+    public static boolean axeSlotEnabled(){
+        return COMMON.AXE_SLOT.get();
+    }
 }

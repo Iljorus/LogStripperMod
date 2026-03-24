@@ -203,13 +203,10 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
-        if (BaseConfig.COMMON.AXE_SLOT.get() && shouldPreserveAxe()) {
-            //TODO print some sort of msg or draw red X over/under progress icon, perhaps add icon to toggle this behaviour
+        if ((BaseConfig.axeSlotEnabled() && (shouldPreserveAxe() || !hasAxePresent())) || isPowered()) {
             decreaseProgress();
-        } else if (isPowered()) {
-            decreaseProgress();
-        } else if (!isPowered() && hasRecipe()) {
-            if (!BaseConfig.COMMON.AXE_SLOT.get() || hasAxePresent()) {
+        } else if (hasRecipe()) {
+            if (!BaseConfig.axeSlotEnabled() || hasAxePresent()) {
                 increaseProgress();
             } else {
                 decreaseProgress();
@@ -225,17 +222,13 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         setChanged();
     }
 
-    private void resetProgress() {
-        progress = 0;
-    }
-
     private void craftItem() {
         fetchRecipe().ifPresentOrElse((recipe) -> {
                     if (level == null) {
                         LogUtils.getLogger().error("Level is null");
                     }
                     ItemStack result = recipe.getResultItem(level.registryAccess());
-                    if (BaseConfig.COMMON.AXE_SLOT.get()) {
+                    if (BaseConfig.axeSlotEnabled()) {
                         hurtAxe();
                     }
                     this.inputSlot.extractItem(0, 1, false);
@@ -259,12 +252,13 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
+    private void resetProgress() {
+        progress = 0;
+    }
+
     private boolean hasRecipe() {
         Optional<LogStrippingRecipe> recipe = fetchRecipe();
-        if (recipe.isEmpty()) {
-            return false;
-        }
-        if (level == null) {
+        if (recipe.isEmpty() || level == null) {
             return false;
         }
         ItemStack result = recipe.get().getResultItem(level.registryAccess());
