@@ -1,6 +1,5 @@
 package net.iljorus.logstrippermod;
 
-import com.mojang.logging.LogUtils;
 import net.iljorus.logstrippermod.block.ModBlocks;
 import net.iljorus.logstrippermod.block.entity.ModBlockEntity;
 import net.iljorus.logstrippermod.config.BaseConfig;
@@ -18,14 +17,11 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.slf4j.Logger;
 
 @Mod(LogStripperMod.MOD_ID)
 public class LogStripperMod {
     public static final String MOD_ID = "logstrippermod";
-
     public static IEventBus modEventBus;
-    private final Logger LOGGER = LogUtils.getLogger();
 
     public LogStripperMod(FMLJavaModLoadingContext context) {
         modEventBus = context.getModEventBus();
