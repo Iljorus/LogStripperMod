@@ -147,7 +147,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         inventory.setItem(OUTPUT_SLOT_INDEX, outputSlot.getStack());
         inventory.setItem(AXE_SLOT_INDEX, axeSlot.getStack());
 
-        if(level == null){
+        if (level == null) {
             LogUtils.getLogger().error("Level is null");
         }
         Containers.dropContents(this.level, this.worldPosition, inventory);
@@ -209,7 +209,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         } else if (isPowered()) {
             decreaseProgress();
         } else if (!isPowered() && hasRecipe()) {
-            if (!BaseConfig.COMMON.AXE_SLOT.get() || !getAxe().isEmpty()) {
+            if (!BaseConfig.COMMON.AXE_SLOT.get() || hasAxePresent()) {
                 increaseProgress();
             } else {
                 decreaseProgress();
@@ -271,13 +271,13 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         return canOutputAmount(result.getCount()) && canOutputItem(result.getItem());
     }
 
-    private boolean shouldPreserveAxe() {
+    public boolean shouldPreserveAxe() {
         return BaseConfig.COMMON.PRESERVE_AXE.get() &&
-                getAxe().getDamageValue() + BaseConfig.COMMON.DURABILITY_DEDUCTION.get() >= getAxe().getMaxDamage();
+                this.axeSlot.getStackInSlot(0).getDamageValue() + BaseConfig.COMMON.DURABILITY_DEDUCTION.get() >= maximumAxeDurability();
     }
 
     private void hurtAxe() {
-        ItemStack axeCopy = getAxe().copy();
+        ItemStack axeCopy = axeSlot.getStackInSlot(0).copy();
         if (axeCopy.isEmpty()) {
             return;
         }
@@ -302,8 +302,17 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
         return this.outputSlot.getStackInSlot(0).getCount() + count <= this.outputSlot.getStackInSlot(0).getMaxStackSize();
     }
 
-    public ItemStack getAxe() {
-        return this.axeSlot.getStackInSlot(0);
+    public int currentAxeDurability() {
+        ItemStack axe = this.axeSlot.getStackInSlot(0);
+        return axe.getMaxDamage() - axe.getDamageValue();
+    }
+
+    public int maximumAxeDurability() {
+        return this.axeSlot.getStackInSlot(0).getMaxDamage();
+    }
+
+    public boolean hasAxePresent() {
+        return !this.axeSlot.getStackInSlot(0).isEmpty();
     }
 
     private boolean isPowered() {

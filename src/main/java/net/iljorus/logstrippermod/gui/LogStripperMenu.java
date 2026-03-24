@@ -71,14 +71,13 @@ public class LogStripperMenu extends AbstractContainerMenu {
 
     public int getScaledAxeDurability() {
         int scaleSize = 42;
-        ItemStack stack = this.blockEntity.getAxe();
-        if (stack == ItemStack.EMPTY) {
+        if (!blockEntity.hasAxePresent()) {
             return 0;
         }
-        int maxDurability = stack.getMaxDamage();
-        int durability = maxDurability - stack.getDamageValue();
+        int maxDurability = blockEntity.maximumAxeDurability();
+        int curDurability = blockEntity.currentAxeDurability();
 
-        return maxDurability != 0 ? scaleSize * durability / maxDurability : 0;
+        return maxDurability != 0 ? scaleSize * curDurability / maxDurability : 0;
     }
 
     // must assign a slot number to each of the slots used by the GUI.
