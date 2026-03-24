@@ -103,11 +103,7 @@ public class LogStripperBlockEntity extends BlockEntity implements MenuProvider 
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
             if (side == null) {
-                if (BaseConfig.COMMON.AXE_SLOT.get()) {
-                    return inputAndOutputAndAxeLazyOptional.cast();
-                } else {
-                    return inputAndOutputLazyOptional.cast();
-                }
+                return inputAndOutputAndAxeLazyOptional.cast();
             }
             if (side == Direction.UP ||
                     side == Direction.NORTH ||
